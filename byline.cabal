@@ -34,9 +34,19 @@ flag maintainer
 
 --------------------------------------------------------------------------------
 library
-  -- exposed-modules:     
-  -- other-modules:       
-  -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8
-  hs-source-dirs:      src
-  default-language:    Haskell2010
+  exposed-modules:
+    System.Console.Byline.Internal.Color
+    System.Console.Byline.Internal.Stylized
+
+  hs-source-dirs: src
+  default-language: Haskell2010
+  ghc-options: -Wall -fwarn-incomplete-uni-patterns
+  ghc-prof-options: -prof -auto-all
+
+  if flag(maintainer)
+    ghc-options: -Werror
+
+  build-depends: base          >= 4.7  && < 5.0
+               , haskeline     >= 0.7  && < 0.8
+               , ansi-terminal >= 0.6  && < 0.7
+               , text          >= 0.11 && < 1.3
