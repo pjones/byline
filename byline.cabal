@@ -1,0 +1,42 @@
+--------------------------------------------------------------------------------
+name:          byline
+version:       0.1.0.0
+synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
+homepage:      http://github.com/pjones/byline
+bug-reports:   http://github.com/pjones/byline/issues
+license:       BSD2
+license-file:  LICENSE
+author:        Peter Jones <pjones@devalot.com>
+maintainer:    Peter Jones <pjones@devalot.com>
+copyright:     Copyright: (c) 2015 Peter J. Jones
+category:      System
+build-type:    Simple
+stability:     experimental
+tested-with:   GHC == 7.8.4
+cabal-version: >=1.10
+description:   FIXME
+
+--------------------------------------------------------------------------------
+extra-source-files:
+  CHANGES
+  README.md
+
+--------------------------------------------------------------------------------
+source-repository head
+  type: git
+  location: git://github.com/pjones/byline.git
+
+--------------------------------------------------------------------------------
+flag maintainer
+  description: Enable settings for the package maintainer.
+  manual: True
+  default: False
+
+--------------------------------------------------------------------------------
+library
+  -- exposed-modules:     
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:       base >=4.7 && <4.8
+  hs-source-dirs:      src
+  default-language:    Haskell2010
