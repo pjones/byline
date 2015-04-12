@@ -11,37 +11,30 @@ the LICENSE file.
 
 
 --------------------------------------------------------------------------------
-module System.Console.Byline.Internal.Color
-       ( Color (..)
-       , black, red, green, yellow, blue, magenta, cyan, white
-       , rgb
-       , colorAsANSI
+module System.Console.Byline.Internal.Types
+       ( Status  (..)
+       , OnlyOne (..)
        ) where
 
 --------------------------------------------------------------------------------
-import qualified System.Console.ANSI as ANSI
+import Data.Monoid
 
 --------------------------------------------------------------------------------
-data Color = ColorCode ANSI.Color | ColorRGB (Int, Int, Int)
+data Status = On | Off
 
 --------------------------------------------------------------------------------
--- | Standard ANSI colors.
-black, red, green, yellow, blue, magenta, cyan, white :: Color
-black   = ColorCode ANSI.Black
-red     = ColorCode ANSI.Red
-green   = ColorCode ANSI.Green
-yellow  = ColorCode ANSI.Yellow
-blue    = ColorCode ANSI.Blue
-magenta = ColorCode ANSI.Magenta
-cyan    = ColorCode ANSI.Cyan
-white   = ColorCode ANSI.White
+instance Monoid Status where
+  mempty = Off
+  mappend Off Off = Off
+  mappend Off On  = On
+  mappend On  On  = On
+  mappend On  Off = On
 
 --------------------------------------------------------------------------------
--- | Full RGB colors.
-rgb :: (Int, Int, Int) -> Color
-rgb = ColorRGB
+newtype OnlyOne a = OnlyOne {unOne :: Maybe a}
 
 --------------------------------------------------------------------------------
-colorAsANSI :: Color -> ANSI.Color
-colorAsANSI (ColorCode c) = c
-colorAsANSI (ColorRGB _)  = ANSI.Red -- FIXME: downgrade color
+instance Monoid (OnlyOne a) where
+  mempty = OnlyOne Nothing
+  mappend _ b@(OnlyOne (Just _)) = b
+  mappend a _                    = a

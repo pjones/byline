@@ -11,37 +11,31 @@ the LICENSE file.
 
 
 --------------------------------------------------------------------------------
-module System.Console.Byline.Internal.Color
-       ( Color (..)
-       , black, red, green, yellow, blue, magenta, cyan, white
-       , rgb
-       , colorAsANSI
+module System.Console.Byline.Internal.Modifiers
+       ( fg
+       , bg
+       , bold
+       , underline
        ) where
 
 --------------------------------------------------------------------------------
-import qualified System.Console.ANSI as ANSI
+import Data.Monoid
+import System.Console.Byline.Internal.Color
+import System.Console.Byline.Internal.Stylized
+import System.Console.Byline.Internal.Types
 
 --------------------------------------------------------------------------------
-data Color = ColorCode ANSI.Color | ColorRGB (Int, Int, Int)
+fg :: Color -> Stylized
+fg c = StylizedMod (mempty {modColorFG = OnlyOne (Just c)})
 
 --------------------------------------------------------------------------------
--- | Standard ANSI colors.
-black, red, green, yellow, blue, magenta, cyan, white :: Color
-black   = ColorCode ANSI.Black
-red     = ColorCode ANSI.Red
-green   = ColorCode ANSI.Green
-yellow  = ColorCode ANSI.Yellow
-blue    = ColorCode ANSI.Blue
-magenta = ColorCode ANSI.Magenta
-cyan    = ColorCode ANSI.Cyan
-white   = ColorCode ANSI.White
+bg :: Color -> Stylized
+bg c = StylizedMod (mempty {modColorBG = OnlyOne (Just c)})
 
 --------------------------------------------------------------------------------
--- | Full RGB colors.
-rgb :: (Int, Int, Int) -> Color
-rgb = ColorRGB
+bold :: Stylized
+bold = StylizedMod (mempty {modBold = On})
 
 --------------------------------------------------------------------------------
-colorAsANSI :: Color -> ANSI.Color
-colorAsANSI (ColorCode c) = c
-colorAsANSI (ColorRGB _)  = ANSI.Red -- FIXME: downgrade color
+underline :: Stylized
+underline = StylizedMod (mempty {modUnderline = On})

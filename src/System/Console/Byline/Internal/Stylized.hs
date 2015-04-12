@@ -13,23 +13,15 @@ the LICENSE file.
 --------------------------------------------------------------------------------
 module System.Console.Byline.Internal.Stylized
        ( Stylized (..)
+       , Modifier (..)
        , text
-       , fg
-       , bg
-       , bold
-       , underline
        ) where
 
 --------------------------------------------------------------------------------
 import Data.Monoid
 import Data.Text (Text)
 import System.Console.Byline.Internal.Color
-
---------------------------------------------------------------------------------
-data Status = On | Off
-
---------------------------------------------------------------------------------
-newtype OnlyOne a = OnlyOne {unOne :: Maybe a}
+import System.Console.Byline.Internal.Types
 
 --------------------------------------------------------------------------------
 data Modifier = Modifier
@@ -47,35 +39,6 @@ data Stylized = StylizedText Text Modifier
 --------------------------------------------------------------------------------
 text :: Text -> Stylized
 text t = StylizedText t mempty
-
---------------------------------------------------------------------------------
-fg :: Color -> Stylized
-fg c = StylizedMod (mempty {modColorFG = OnlyOne (Just c)})
-
---------------------------------------------------------------------------------
-bg :: Color -> Stylized
-bg c = StylizedMod (mempty {modColorBG = OnlyOne (Just c)})
-
---------------------------------------------------------------------------------
-bold :: Stylized
-bold = StylizedMod (mempty {modBold = On})
-
---------------------------------------------------------------------------------
-underline :: Stylized
-underline = StylizedMod (mempty {modUnderline = On})
-
---------------------------------------------------------------------------------
-instance Monoid Status where
-  mempty = Off
-  mappend Off Off = Off
-  mappend Off On  = On
-  mappend On  On  = On
-  mappend On  Off = On
-
---------------------------------------------------------------------------------
-instance Monoid (OnlyOne a) where
-  mempty = OnlyOne Nothing
-  mappend _ b = b
 
 --------------------------------------------------------------------------------
 instance Monoid Modifier where
