@@ -9,16 +9,20 @@ the LICENSE file.
 
 -}
 
-
 --------------------------------------------------------------------------------
+-- | FIXME: Holy crap this needs some major refactoring!
 module System.Console.Byline.Internal.Render
        ( RenderMode (..)
        , render
+       , renderText
        ) where
 
 --------------------------------------------------------------------------------
 import Control.Applicative
+import Control.Monad (void)
+import Data.Functor.Identity
 import Data.Maybe
+import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import System.Console.ANSI as ANSI
@@ -34,11 +38,11 @@ data RenderMode = Plain  -- ^ Text only, no modifiers.
 
 --------------------------------------------------------------------------------
 render :: RenderMode -> Handle -> Stylized -> IO ()
-render mode h = mapStylized $
+render mode h stylized  =
   case mode of
-    Plain  -> renderPlain
-    Simple -> renderSimple
-    Full   -> renderFull
+    Plain  -> mapStylized void renderPlain  stylized
+    Simple -> mapStylized void renderSimple stylized
+    Full   -> mapStylized void renderFull   stylized
 
   where
     renderPlain :: (Text, Modifier) -> IO ()
@@ -51,6 +55,29 @@ render mode h = mapStylized $
       hSetSGR h [Reset]
 
     renderFull :: (Text, Modifier) -> IO ()
+    renderFull = undefined
+
+--------------------------------------------------------------------------------
+-- | Render into a 'Text' value.  Won't work on Windows.
+renderText :: RenderMode -> Stylized -> Text
+renderText mode stylized = runIdentity $
+  case mode of
+    Plain  -> mapStylized (fmap mconcat) renderPlain stylized
+    Simple -> mapStylized (fmap mconcat) renderSimple stylized
+    Full   -> mapStylized (fmap mconcat) renderFull stylized
+
+  where
+    renderPlain :: (Text, Modifier) -> Identity Text
+    renderPlain = return . fst
+
+    renderSimple :: (Text, Modifier) -> Identity Text
+    renderSimple (t, m) = return $ mconcat
+      [ T.pack (setSGRCode $ modToSGR m)
+      , t
+      , T.pack (setSGRCode [Reset])
+      ]
+
+    renderFull :: (Text, Modifier) -> Identity Text
     renderFull = undefined
 
 --------------------------------------------------------------------------------
@@ -77,7 +104,7 @@ modToSGR m =
       On  -> Just SingleUnderline
 
 --------------------------------------------------------------------------------
-mapStylized :: ((Text, Modifier) -> IO ()) -> Stylized -> IO ()
-mapStylized f (StylizedText t m) = f (t, m)
-mapStylized f (StylizedMod m)    = f (T.empty, m)
-mapStylized f (StylizedList l)   = sequence_ $ map (mapStylized f) l
+mapStylized :: (Monad m) => (m [a] -> m a) -> ((Text, Modifier) -> m a) -> Stylized -> m a
+mapStylized _ g (StylizedText t m) = g (t, m)
+mapStylized _ g (StylizedMod m)    = g (T.empty, m)
+mapStylized f g (StylizedList l)   = f (sequence $ map (mapStylized f g) l)

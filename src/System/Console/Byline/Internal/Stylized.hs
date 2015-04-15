@@ -19,7 +19,9 @@ module System.Console.Byline.Internal.Stylized
 
 --------------------------------------------------------------------------------
 import Data.Monoid
+import Data.String
 import Data.Text (Text)
+import qualified Data.Text as T
 import System.Console.Byline.Internal.Color
 import System.Console.Byline.Internal.Types
 
@@ -37,6 +39,9 @@ data Stylized = StylizedText Text Modifier
               | StylizedList [Stylized]
 
 --------------------------------------------------------------------------------
+-- | Helper function to create stylized text.  If you enable the
+-- 'OverloadedStrings' extension then you can create stylized text
+-- directly without using this function.
 text :: Text -> Stylized
 text t = StylizedText t mempty
 
@@ -64,3 +69,7 @@ instance Monoid Stylized where
   mappend (StylizedList l) t@(StylizedText _ _) = StylizedList (l <> [t])
   mappend (StylizedList l) m@(StylizedMod _)    = StylizedList (map (<> m) l)
   mappend (StylizedList l) (StylizedList l')    = StylizedList (l <> l')
+
+--------------------------------------------------------------------------------
+instance IsString Stylized where
+  fromString = text . T.pack

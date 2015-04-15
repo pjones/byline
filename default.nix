@@ -1,32 +1,36 @@
-{ pkgs ? (import <nixpkgs> {}) }:
+{ stdenv, haskellPackages }:
 
-let haskellPackages = pkgs.haskellPackages; in
+let
+  env = haskellPackages.ghcWithPackages (p: with p; [
+    # Tools:
+    cabal-install hlint
 
-haskellPackages.cabal.mkDerivation (self: {
-  pname = "byline";
-  version = "0.0.0.0";
-  src = ./.;
-  isLibrary = true;
-  isExecutable = true;
+    # Libraries:
+    haskeline ansi-terminal text mtl transformers
+  ]);
 
-  buildTools = with pkgs; [
-    haskellPackages.ghc
-    haskellPackages.cabalInstall
-    haskellPackages.hlint
-  ];
+in stdenv.mkDerivation rec {
+  name = "byline";
+  src = ./src;
 
-  buildDepends = with pkgs; [
-    zlib
-  ];
+  buildInputs = [ env ];
 
-  shellHook = with pkgs; ''
-    export LD_LIBRARY_PATH="${zlib}/lib:$LD_LIBRARY_PATH"
+  buildPhase = ''
+    ( HOME="$(mktemp -d)" # For cabal-install.
+      cabal build || exit 1
+      cabal test  || exit 1
+    )
+
+    hlint src
   '';
 
-  meta = with self.stdenv.lib; {
-    homepage = http://github.com/pjones/byline;
-    description = "";
-    license = licenses.mit;
-    platforms = self.ghc.meta.platforms;
-  };
-})
+  installPhase = ''
+  '';
+
+  shellHook = ''
+    export NIX_GHC="${env}/bin/ghc"
+    export NIX_GHCPKG="${env}/bin/ghc-pkg"
+    export NIX_GHC_DOCDIR="${env}/share/doc/ghc/html"
+    export NIX_GHC_LIBDIR=$( $NIX_GHC --print-libdir )
+  '';
+}
