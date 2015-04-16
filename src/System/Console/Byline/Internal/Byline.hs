@@ -28,19 +28,20 @@ import System.Console.Haskeline
 import System.IO (Handle, stdout)
 
 --------------------------------------------------------------------------------
-data Env = Env
+data Env m = Env
   { renderMode :: RenderMode
   , outHandle  :: Handle
-  , hlSettings :: Settings IO
+  , hlSettings :: Settings m
   }
 
 --------------------------------------------------------------------------------
 -- | Reader environment for Byline.
-newtype Byline a = Byline {unByline :: ReaderT Env IO a}
-  deriving (Functor, Applicative, Monad, MonadIO, MonadReader Env)
+newtype Byline m a = Byline {unByline :: ReaderT (Env m) m a}
+  deriving (Functor, Applicative, Monad, MonadIO, MonadReader (Env m))
 
 --------------------------------------------------------------------------------
-defEnv :: (MonadException m) => InputT m Env
+-- | Create the default reader environment.
+defEnv :: (MonadException m) => InputT m (Env m)
 defEnv = do
   termHint <- haveTerminalUI
 
@@ -53,15 +54,15 @@ defEnv = do
                , hlSettings = defaultSettings
                }
 
-
 --------------------------------------------------------------------------------
-liftInputT :: InputT IO a -> Byline a
+-- | Lift an 'InputT' action into 'Byline'.
+liftInputT :: (MonadException m) => InputT m a -> Byline m a
 liftInputT input = do
   settings <- asks hlSettings
-  liftIO $ runInputT settings input
+  Byline (lift $ runInputT settings input)
 
 --------------------------------------------------------------------------------
-runByline :: (MonadException m) => Byline a -> m a
+runByline :: (MonadException m) => Byline m a -> m a
 runByline byline = runInputT defaultSettings $ do
   env <- defEnv
-  withInterrupt . liftIO $ runReaderT (unByline byline) env
+  withInterrupt . lift $ runReaderT (unByline byline) env

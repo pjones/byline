@@ -15,6 +15,9 @@ module System.Console.Byline
          say
        , sayLn
        , ask
+       , askChar
+       , askPassword
+       , askUntil
        , report
        , reportLn
        , withCompletionFunc

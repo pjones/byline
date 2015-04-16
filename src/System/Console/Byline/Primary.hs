@@ -18,6 +18,9 @@ module System.Console.Byline.Primary
        , say
        , sayLn
        , ask
+       , askChar
+       , askPassword
+       , askUntil
        , report
        , reportLn
        , withCompletionFunc
@@ -44,41 +47,103 @@ data ReportType = Error    -- ^ Report errors with: @"error: "@
 
 --------------------------------------------------------------------------------
 -- | Output the stylized text to the output handle (default: stdout).
-say :: Stylized -> Byline ()
+say :: (MonadIO m) => Stylized -> Byline m ()
 say message = do
   env <- Reader.ask
   liftIO $ render (renderMode env) (outHandle env) message
 
 --------------------------------------------------------------------------------
 -- | Like 'say', but append a newline character.
-sayLn :: Stylized -> Byline ()
+sayLn :: (MonadIO m) => Stylized -> Byline m ()
 sayLn message = say (message <> text "\n")
 
 --------------------------------------------------------------------------------
 -- | Read input after printing the given stylized text as a prompt.
-ask :: Stylized -> Byline (Maybe Text)
-ask prompt = do
-  mode <- Reader.asks renderMode
-  result <- liftInputT . getInputLine . T.unpack . renderText mode $ prompt
-  return (T.pack <$> result)
+ask :: (MonadException m)
+    => Stylized                 -- ^ The prompt.
+    -> Maybe Text               -- ^ Optional default answer.
+    -> Byline m (Maybe Text)
+ask prompt defans = do
+  let prompt' = case defans of
+                  Nothing -> prompt
+                  Just s  -> prompt <> text "[" <> text s <> "] "
+
+  result <- liftInputT . getInputLine =<< renderPrompt prompt'
+
+  case filterOutput (T.pack <$> result) of
+    Nothing     -> return defans
+    Just answer -> return (Just answer)
+
+--------------------------------------------------------------------------------
+-- | Read a single character of input.  Like other functions,
+-- 'askChar' will return 'Nothing' if the user issues a Ctrl-d/EOF.
+askChar :: (MonadException m)
+        => Stylized
+        -> Byline m (Maybe Char)
+askChar prompt = liftInputT . getInputChar =<< renderPrompt prompt
+
+--------------------------------------------------------------------------------
+-- | Read a password without echoing it to the terminal.  If a masking
+-- character is given it will replace each typed character.
+askPassword :: (MonadException m)
+            => Stylized            -- ^ The prompt.
+            -> Maybe Char          -- ^ Masking character.
+            -> Byline m (Maybe Text)
+askPassword prompt maskchr = do
+  result <- liftInputT . getPassword maskchr =<< renderPrompt prompt
+  return $ filterOutput (T.pack <$> result)
+
+--------------------------------------------------------------------------------
+-- | Continue to prompt for a response until a confirmation function
+-- returns a valid result.
+--
+-- The confirmation function receives the output from 'ask' and should
+-- return a 'Left Stylized' to produce an error message (printed with
+-- 'sayLn').  When an acceptable answer from 'ask' is received, the
+-- confirmation function should return it with 'Right'.
+askUntil :: (MonadException m)
+         => Stylized                             -- ^ The prompt.
+         -> Maybe Text                           -- ^ Optional default answer.
+         -> (Maybe Text -> Either Stylized Text) -- ^ Confirmation function.
+         -> Byline m Text
+askUntil prompt defans confirm = go where
+  go = do
+    answer <- ask prompt defans
+    case confirm answer of
+      Left msg     -> sayLn msg >> go
+      Right result -> return result
 
 --------------------------------------------------------------------------------
 -- | Output stylized text with a prefix determined by 'ReportType'.
-report :: ReportType -> Stylized -> Byline ()
+report :: (MonadIO m) => ReportType -> Stylized -> Byline m ()
 report (Error) message   = say $ (text "error: "   <> fg red)    <> message
 report (Warning) message = say $ (text "warning: " <> fg yellow) <> message
 
 --------------------------------------------------------------------------------
 -- | Like 'report', but append a newline character.
-reportLn :: ReportType -> Stylized -> Byline ()
+reportLn :: (MonadIO m) => ReportType -> Stylized -> Byline m ()
 reportLn rt message = report rt (message <> text "\n")
 
 --------------------------------------------------------------------------------
--- | FIXME: remove IO so that CompletionFunc can be in any monad.
-withCompletionFunc :: CompletionFunc IO -> Byline a -> Byline a
+-- | Run the given 'Byline' action with a different completion
+-- function.
+withCompletionFunc :: (Monad m) => CompletionFunc m -> Byline m a -> Byline m a
 withCompletionFunc comp byline =
   Byline $ Reader.local updateComp (unByline byline)
 
   where
-    updateComp :: Env -> Env
+    -- updateComp :: Env m -> Env m
     updateComp env = env { hlSettings = setComplete comp (hlSettings env) }
+
+--------------------------------------------------------------------------------
+renderPrompt :: (Monad m) => Stylized -> Byline m String
+renderPrompt prompt = do
+    mode <- Reader.asks renderMode
+    return $ T.unpack (renderText mode prompt)
+
+--------------------------------------------------------------------------------
+-- | Convert empty 'ask' output to 'Nothing'.
+filterOutput :: Maybe Text -> Maybe Text
+filterOutput Nothing              = Nothing
+filterOutput (Just t) | T.null t  = Nothing
+                      | otherwise = Just t
