@@ -33,6 +33,12 @@ flag maintainer
   default: False
 
 --------------------------------------------------------------------------------
+flag build-examples
+  description: Build examples when building the library.
+  manual: True
+  default: False
+
+--------------------------------------------------------------------------------
 library
   exposed-modules:
     System.Console.Byline
@@ -58,3 +64,16 @@ library
                , mtl           >= 2.1  && < 2.2
                , text          >= 0.11 && < 1.3
                , transformers  >= 0.3  && < 0.4
+
+--------------------------------------------------------------------------------
+executable simple
+  main-is: examples/simple.hs
+  default-language: Haskell2010
+  ghc-options: -Wall -fwarn-incomplete-uni-patterns
+  build-depends: base, byline, text
+
+  if flag(maintainer)
+    ghc-options: -Werror
+
+  if !flag(build-examples)
+    buildable: False

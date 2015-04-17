@@ -11,7 +11,6 @@ the LICENSE file.
 
 -}
 
-
 --------------------------------------------------------------------------------
 module System.Console.Byline.Primary
        ( ReportType (..)
@@ -105,13 +104,13 @@ askUntil :: (MonadException m)
          => Stylized                             -- ^ The prompt.
          -> Maybe Text                           -- ^ Optional default answer.
          -> (Maybe Text -> Either Stylized Text) -- ^ Confirmation function.
-         -> Byline m Text
+         -> Byline m (Maybe Text)
 askUntil prompt defans confirm = go where
   go = do
     answer <- ask prompt defans
     case confirm answer of
       Left msg     -> sayLn msg >> go
-      Right result -> return result
+      Right result -> return (Just result)
 
 --------------------------------------------------------------------------------
 -- | Output stylized text with a prefix determined by 'ReportType'.

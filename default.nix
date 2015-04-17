@@ -17,6 +17,7 @@ in stdenv.mkDerivation rec {
 
   buildPhase = ''
     ( HOME="$(mktemp -d)" # For cabal-install.
+      cabal configure -fmaintainer -fbuild-examples
       cabal build || exit 1
       cabal test  || exit 1
     )

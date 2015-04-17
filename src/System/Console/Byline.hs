@@ -35,6 +35,7 @@ module System.Console.Byline
        , runByline
 
          -- * Utility Functions, Operators, and Types
+       , Stylized
        , ReportType (..)
        , (<>)
        ) where
