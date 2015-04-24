@@ -67,11 +67,9 @@ ask prompt defans = do
                   Nothing -> prompt
                   Just s  -> prompt <> text "[" <> text s <> "] "
 
-  result <- liftInputT . getInputLine =<< renderPrompt prompt'
+  answer <- liftInputT . getInputLine =<< renderPrompt prompt'
+  return (T.pack <$> answer)
 
-  case filterOutput (T.pack <$> result) of
-    Nothing     -> return defans
-    Just answer -> return (Just answer)
 
 --------------------------------------------------------------------------------
 -- | Read a single character of input.  Like other functions,
@@ -89,8 +87,8 @@ askPassword :: (MonadException m)
             -> Maybe Char          -- ^ Masking character.
             -> Byline m (Maybe Text)
 askPassword prompt maskchr = do
-  result <- liftInputT . getPassword maskchr =<< renderPrompt prompt
-  return $ filterOutput (T.pack <$> result)
+  pass <- liftInputT . getPassword maskchr =<< renderPrompt prompt
+  return (T.pack <$> pass)
 
 --------------------------------------------------------------------------------
 -- | Continue to prompt for a response until a confirmation function
@@ -132,17 +130,10 @@ withCompletionFunc comp byline =
 
   where
     -- updateComp :: Env m -> Env m
-    updateComp env = env { hlSettings = setComplete comp (hlSettings env) }
+    updateComp env = env { otherCompFunc = Just comp }
 
 --------------------------------------------------------------------------------
 renderPrompt :: (Monad m) => Stylized -> Byline m String
 renderPrompt prompt = do
     mode <- Reader.asks renderMode
     return $ T.unpack (renderText mode prompt)
-
---------------------------------------------------------------------------------
--- | Convert empty 'ask' output to 'Nothing'.
-filterOutput :: Maybe Text -> Maybe Text
-filterOutput Nothing              = Nothing
-filterOutput (Just t) | T.null t  = Nothing
-                      | otherwise = Just t

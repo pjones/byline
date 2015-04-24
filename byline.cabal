@@ -48,6 +48,7 @@ library
     System.Console.Byline.Internal.Render
     System.Console.Byline.Internal.Stylized
     System.Console.Byline.Internal.Types
+    System.Console.Byline.Menu
     System.Console.Byline.Primary
 
   hs-source-dirs: src
@@ -60,6 +61,7 @@ library
 
   build-depends: base          >= 4.7  && < 5.0
                , ansi-terminal >= 0.6  && < 0.7
+               , containers    >= 0.5  && < 0.6
                , haskeline     >= 0.7  && < 0.8
                , mtl           >= 2.1  && < 2.2
                , text          >= 0.11 && < 1.3
@@ -68,6 +70,19 @@ library
 --------------------------------------------------------------------------------
 executable simple
   main-is: examples/simple.hs
+  default-language: Haskell2010
+  ghc-options: -Wall -fwarn-incomplete-uni-patterns
+  build-depends: base, byline, text
+
+  if flag(maintainer)
+    ghc-options: -Werror
+
+  if !flag(build-examples)
+    buildable: False
+
+--------------------------------------------------------------------------------
+executable menu
+  main-is: examples/menu.hs
   default-language: Haskell2010
   ghc-options: -Wall -fwarn-incomplete-uni-patterns
   build-depends: base, byline, text

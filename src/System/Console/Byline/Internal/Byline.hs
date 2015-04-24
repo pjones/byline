@@ -29,9 +29,10 @@ import System.IO (Handle, stdout)
 
 --------------------------------------------------------------------------------
 data Env m = Env
-  { renderMode :: RenderMode
-  , outHandle  :: Handle
-  , hlSettings :: Settings m
+  { renderMode    :: RenderMode
+  , outHandle     :: Handle
+  , hlSettings    :: Settings m
+  , otherCompFunc :: Maybe (CompletionFunc m)
   }
 
 --------------------------------------------------------------------------------
@@ -49,17 +50,23 @@ defEnv = do
                False -> Plain
                True  -> Simple
 
-  return $ Env { renderMode = mode
-               , outHandle  = stdout
-               , hlSettings = defaultSettings
-               }
+  return Env { renderMode    = mode
+             , outHandle     = stdout
+             , hlSettings    = defaultSettings
+             , otherCompFunc = Nothing
+             }
 
 --------------------------------------------------------------------------------
 -- | Lift an 'InputT' action into 'Byline'.
 liftInputT :: (MonadException m) => InputT m a -> Byline m a
 liftInputT input = do
-  settings <- asks hlSettings
-  Byline (lift $ runInputT settings input)
+  env <- ask
+
+  let settings = case otherCompFunc env of
+                   Nothing -> hlSettings env
+                   Just f  -> setComplete f (hlSettings env)
+
+  Byline $ lift (runInputT settings input)
 
 --------------------------------------------------------------------------------
 runByline :: (MonadException m) => Byline m a -> m a

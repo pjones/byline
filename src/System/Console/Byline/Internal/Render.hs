@@ -107,4 +107,4 @@ modToSGR m =
 mapStylized :: (Monad m) => (m [a] -> m a) -> ((Text, Modifier) -> m a) -> Stylized -> m a
 mapStylized _ g (StylizedText t m) = g (t, m)
 mapStylized _ g (StylizedMod m)    = g (T.empty, m)
-mapStylized f g (StylizedList l)   = f (sequence $ map (mapStylized f g) l)
+mapStylized f g (StylizedList l)   = f (mapM (mapStylized f g) l)

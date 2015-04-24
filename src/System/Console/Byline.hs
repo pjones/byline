@@ -20,7 +20,6 @@ module System.Console.Byline
        , askUntil
        , report
        , reportLn
-       , withCompletionFunc
 
          -- * Constructing Stylized Text
        , text
@@ -31,12 +30,25 @@ module System.Console.Byline
          -- * Specifying Colors
        , black, red, green, yellow, blue, magenta, cyan, white, rgb
 
+         -- * Menus
+       , Menu
+       , Choice (..)
+       , menu
+       , askWithMenu
+       , askWithMenuRepeatedly
+       , banner
+       , prefix
+       , suffix
+       , Matcher
+       , matcher
+
          -- * Executing Terminal IO
        , runByline
 
          -- * Utility Functions, Operators, and Types
        , Stylized
        , ReportType (..)
+       , withCompletionFunc
        , (<>)
        ) where
 
@@ -45,7 +57,8 @@ import Data.Monoid ((<>))
 
 --------------------------------------------------------------------------------
 import System.Console.Byline.Internal.Byline
+import System.Console.Byline.Internal.Color
 import System.Console.Byline.Internal.Modifiers
 import System.Console.Byline.Internal.Stylized
+import System.Console.Byline.Menu
 import System.Console.Byline.Primary
-import System.Console.Byline.Internal.Color
