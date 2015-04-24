@@ -174,6 +174,8 @@ askWithMenu :: (MonadException m)
 askWithMenu m prompt = do
   currCompFunc <- Reader.asks otherCompFunc
 
+  -- Use the default completion function for menus, but not if another
+  -- completion function is already active.
   withCompletionFunc (fromMaybe (defaultCompFunc m) currCompFunc) $ do
     prefixes <- displayMenu
     answer   <- ask prompt Nothing
@@ -192,7 +194,7 @@ askWithMenu m prompt = do
       cache <- foldM listItem Map.empty $ zip  [1..] (menuItems m)
 
       case menuBeforePrompt m of
-        Nothing -> sayLn ""
+        Nothing -> sayLn mempty -- Just for the newline.
         Just bp -> sayLn ("\n" <> bp)
 
       return cache
