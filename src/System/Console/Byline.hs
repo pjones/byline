@@ -43,6 +43,8 @@ module System.Console.Byline
        , matcher
 
          -- * Executing Terminal IO
+       , Byline
+       , MonadException
        , runByline
 
          -- * Utility Functions, Operators, and Types
@@ -62,3 +64,4 @@ import System.Console.Byline.Internal.Modifiers
 import System.Console.Byline.Internal.Stylized
 import System.Console.Byline.Menu
 import System.Console.Byline.Primary
+import System.Console.Haskeline
