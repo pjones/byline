@@ -68,8 +68,11 @@ ask prompt defans = do
                   Just s  -> prompt <> text "[" <> text s <> "] "
 
   answer <- liftInputT . getInputLine =<< renderPrompt prompt'
-  return (T.pack <$> answer)
 
+  return $ case answer of
+    Nothing            -> Nothing
+    Just s | null s    -> defans <|> (T.pack <$> answer)
+           | otherwise -> T.pack <$> answer
 
 --------------------------------------------------------------------------------
 -- | Read a single character of input.  Like other functions,
