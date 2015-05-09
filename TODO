@@ -1,0 +1,10 @@
+-*- org -*-
+#+title: To-Do List
+
+* Before First Release
+** TODO Don't loop (in `askUntil`) if running in non-interactive (file) mode
+** TODO `askWithMenuRepeatedly` should do the right thing if reading from a file
+** TODO When rendering colors directly via `ask`, don't use color codes on Windows
+** TODO Put the `askUntil` confirmation function into the `Byline m a` monad
+** TODO Use TERMINFO to figure out if we can use rgb colors
+** TODO Downgrade full rgb colors to the default terminal colors
