@@ -58,7 +58,7 @@ sayLn message = say (message <> text "\n")
 
 --------------------------------------------------------------------------------
 -- | Read input after printing the given stylized text as a prompt.
-ask :: (MonadException m)
+ask :: (MonadIO m)
     => Stylized                 -- ^ The prompt.
     -> Maybe Text               -- ^ Optional default answer.
     -> Byline m (Maybe Text)
@@ -77,7 +77,7 @@ ask prompt defans = do
 --------------------------------------------------------------------------------
 -- | Read a single character of input.  Like other functions,
 -- 'askChar' will return 'Nothing' if the user issues a Ctrl-d/EOF.
-askChar :: (MonadException m)
+askChar :: (MonadIO m)
         => Stylized
         -> Byline m (Maybe Char)
 askChar prompt = liftInputT . getInputChar =<< renderPrompt prompt
@@ -85,7 +85,7 @@ askChar prompt = liftInputT . getInputChar =<< renderPrompt prompt
 --------------------------------------------------------------------------------
 -- | Read a password without echoing it to the terminal.  If a masking
 -- character is given it will replace each typed character.
-askPassword :: (MonadException m)
+askPassword :: (MonadIO m)
             => Stylized            -- ^ The prompt.
             -> Maybe Char          -- ^ Masking character.
             -> Byline m (Maybe Text)
@@ -101,7 +101,7 @@ askPassword prompt maskchr = do
 -- return a 'Left Stylized' to produce an error message (printed with
 -- 'sayLn').  When an acceptable answer from 'ask' is received, the
 -- confirmation function should return it with 'Right'.
-askUntil :: (MonadException m)
+askUntil :: (MonadIO m)
          => Stylized                             -- ^ The prompt.
          -> Maybe Text                           -- ^ Optional default answer.
          -> (Maybe Text -> Either Stylized Text) -- ^ Confirmation function.
@@ -127,7 +127,7 @@ reportLn rt message = report rt (message <> text "\n")
 --------------------------------------------------------------------------------
 -- | Run the given 'Byline' action with a different completion
 -- function.
-withCompletionFunc :: (Monad m) => CompletionFunc m -> Byline m a -> Byline m a
+withCompletionFunc :: (Monad m) => CompletionFunc IO -> Byline m a -> Byline m a
 withCompletionFunc comp byline =
   Byline $ Reader.local updateComp (unByline byline)
 

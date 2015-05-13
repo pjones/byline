@@ -28,6 +28,7 @@ module System.Console.Byline.Menu
 --------------------------------------------------------------------------------
 import Control.Applicative
 import Control.Monad
+import Control.Monad.IO.Class
 import qualified Control.Monad.Reader as Reader
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -167,7 +168,7 @@ matcher f m = m {menuMatcher = f}
 --
 -- If you want to force the user to only choose from the displayed
 -- menu items you should use 'askWithMenuRepeatedly' instead.
-askWithMenu :: (MonadException m)
+askWithMenu :: (MonadIO m)
             => Menu a           -- ^ The 'Menu' to display.
             -> Stylized         -- ^ The prompt.
             -> Byline m (Choice a)
@@ -216,7 +217,7 @@ askWithMenu m prompt = do
 -- | Like 'askWithMenu' except that arbitrary input is not allowed.
 -- If the user doesn't correctly select a menu item then the menu will
 -- be repeated and an error message will be displayed.
-askWithMenuRepeatedly :: (MonadException m)
+askWithMenuRepeatedly :: (MonadIO m)
            => Menu a            -- ^ The 'Menu' to display.
            -> Stylized          -- ^ The prompt.
            -> Stylized          -- ^ Error message.

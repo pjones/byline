@@ -24,27 +24,32 @@ module System.Console.Byline.Internal.Byline
 import Control.Applicative
 import Control.Monad.Reader
 import System.Console.Byline.Internal.Render
-import System.Console.Haskeline
 import System.IO (Handle, stdout)
 
 --------------------------------------------------------------------------------
-data Env m = Env
+-- Import Haskeline, which is used to do the heavy lifting.
+import qualified System.Console.Haskeline    as H
+import qualified System.Console.Haskeline.IO as H
+
+--------------------------------------------------------------------------------
+data Env = Env
   { renderMode    :: RenderMode
   , outHandle     :: Handle
-  , hlSettings    :: Settings m
-  , otherCompFunc :: Maybe (CompletionFunc m)
+  , inputState    :: H.InputState
+  , hlSettings    :: H.Settings IO
+  , otherCompFunc :: Maybe (H.CompletionFunc IO)
   }
 
 --------------------------------------------------------------------------------
 -- | Reader environment for Byline.
-newtype Byline m a = Byline {unByline :: ReaderT (Env m) m a}
-  deriving (Functor, Applicative, Monad, MonadIO, MonadReader (Env m))
+newtype Byline m a = Byline {unByline :: ReaderT Env m a}
+  deriving (Functor, Applicative, Monad, MonadIO, MonadReader Env)
 
 --------------------------------------------------------------------------------
 -- | Create the default reader environment.
-defEnv :: (MonadException m) => InputT m (Env m)
-defEnv = do
-  termHint <- haveTerminalUI
+defEnv :: H.InputState -> H.Settings IO -> H.InputT IO Env
+defEnv state settings = do
+  termHint <- H.haveTerminalUI
 
   let mode = case termHint of -- FIXME: consider TERM and TERMINFO
                False -> Plain
@@ -52,24 +57,31 @@ defEnv = do
 
   return Env { renderMode    = mode
              , outHandle     = stdout
-             , hlSettings    = defaultSettings
+             , hlSettings    = settings
+             , inputState    = state
              , otherCompFunc = Nothing
              }
 
 --------------------------------------------------------------------------------
 -- | Lift an 'InputT' action into 'Byline'.
-liftInputT :: (MonadException m) => InputT m a -> Byline m a
+liftInputT :: (MonadIO m) => H.InputT IO a -> Byline m a
 liftInputT input = do
   env <- ask
 
-  let settings = case otherCompFunc env of
-                   Nothing -> hlSettings env
-                   Just f  -> setComplete f (hlSettings env)
+  -- let settings = case otherCompFunc env of
+  --                  Nothing -> hlSettings env
+  --                  Just f  -> setComplete f (hlSettings env)
 
-  Byline $ lift (runInputT settings input)
+  -- Byline $ lift (runInputT settings input)
+
+  liftIO (H.queryInput (inputState env) $ H.withInterrupt input)
 
 --------------------------------------------------------------------------------
-runByline :: (MonadException m) => Byline m a -> m a
-runByline byline = runInputT defaultSettings $ do
-  env <- defEnv
-  withInterrupt . lift $ runReaderT (unByline byline) env
+runByline :: (MonadIO m) => Byline m a -> m a
+runByline byline = do
+  let settings = H.defaultSettings
+  state <- liftIO (H.initializeInput settings)
+  env   <- liftIO (H.queryInput state $ defEnv state settings)
+  output <- runReaderT (unByline byline) env
+  liftIO (H.closeInput state)
+  return output
