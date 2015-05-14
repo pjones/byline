@@ -46,10 +46,14 @@ module System.Console.Byline
        , Byline
        , runByline
 
+         -- * Completion
+       , CompletionFunc
+       , Completion
+       , withCompletionFunc
+
          -- * Utility Functions, Operators, and Types
        , Stylized
        , ReportType (..)
-       , withCompletionFunc
        , (<>)
        ) where
 
@@ -59,6 +63,7 @@ import Data.Monoid ((<>))
 --------------------------------------------------------------------------------
 import System.Console.Byline.Internal.Byline
 import System.Console.Byline.Internal.Color
+import System.Console.Byline.Internal.Completion
 import System.Console.Byline.Internal.Modifiers
 import System.Console.Byline.Internal.Stylized
 import System.Console.Byline.Menu

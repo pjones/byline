@@ -8,9 +8,11 @@
 ** TODO Put the `askUntil` confirmation function into the `Byline m a` monad
 ** TODO Use TERMINFO to figure out if we can use rgb colors
 ** TODO Downgrade full rgb colors to the default terminal colors
-** TODO Restore the ability to change the completion function
-** TODO Restore exception safety in runByline
+** TODO Restore exception safety in `runByline` and `withCompletionFunc`
    - I'm not using `runInputT` anymore so we don't get MonadException either
-** TODO Simplify the interface by aborting on EOF
+** DONE Restore the ability to change the completion function
+   CLOSED: [2015-05-14 Thu 15:23]
+** DONE Simplify the interface by aborting on EOF
+   CLOSED: [2015-05-14 Thu 16:27]
 ** DONE Remove `MonadException` from the interface
    CLOSED: [2015-05-13 Wed 14:39]

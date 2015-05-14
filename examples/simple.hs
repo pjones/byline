@@ -15,13 +15,14 @@ the LICENSE file.
 module Main (main) where
 
 --------------------------------------------------------------------------------
+import Control.Monad (void)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import System.Console.Byline
 
 --------------------------------------------------------------------------------
 main :: IO ()
-main = runByline $ do
+main = void $ runByline $ do
 
   -- Simple message to stdout:
   sayLn "Okay, let's kick this off"
@@ -33,28 +34,20 @@ main = runByline $ do
   let question = "What's your favorite " <> ("language" <> bold) <> "? "
   language <- ask question Nothing
 
-  case language of
-    Nothing -> sayLn "Cat got your tongue?"
-    Just s  -> sayLn ("I see, you like " <> text s <> ".")
+  if Text.null language
+    then sayLn "Cat got your tongue?"
+    else sayLn ("I see, you like " <> text language <> ".")
 
   -- Keep prompting until a confirmation function indicates that the
   -- user's input is sufficient:
   name <- askUntil "What's your name? " Nothing atLeastThreeChars
-
-  case name of
-    Nothing -> sayLn "You must have sent an EOF"
-    Just s  -> sayLn ("Hey there " <> text s)
+  sayLn ("Hey there " <> text name)
 
 --------------------------------------------------------------------------------
 -- | Example confirmation function that requires the input to be three
 -- or more characters long.
-atLeastThreeChars :: Maybe Text -> Either Stylized Text
-atLeastThreeChars input = case input of
-  Nothing -> Left msg
-  Just s
-   | Text.length s < 3 -> Left "You can do better."
-   | otherwise         -> Right s
-
-  where
-    msg = "Hey, you have to enter something, " <>
-          ("please" <> fg green <> underline)  <> "."
+atLeastThreeChars :: Text -> Either Stylized Text
+atLeastThreeChars input =
+  if Text.length input < 3
+    then Left "You can do better."
+    else Right input

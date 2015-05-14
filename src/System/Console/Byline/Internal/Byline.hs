@@ -15,6 +15,7 @@ the LICENSE file.
 module System.Console.Byline.Internal.Byline
        ( Byline (..)
        , Env    (..)
+       , eof
        , liftInputT
        , runByline
        ) where
@@ -23,6 +24,9 @@ module System.Console.Byline.Internal.Byline
 --------------------------------------------------------------------------------
 import Control.Applicative
 import Control.Monad.Reader
+import Control.Monad.Trans.Maybe
+import Data.IORef
+import System.Console.Byline.Internal.Completion
 import System.Console.Byline.Internal.Render
 import System.IO (Handle, stdout)
 
@@ -33,55 +37,60 @@ import qualified System.Console.Haskeline.IO as H
 
 --------------------------------------------------------------------------------
 data Env = Env
-  { renderMode    :: RenderMode
-  , outHandle     :: Handle
-  , inputState    :: H.InputState
-  , hlSettings    :: H.Settings IO
-  , otherCompFunc :: Maybe (H.CompletionFunc IO)
+  { renderMode  :: RenderMode
+  , outHandle   :: Handle
+  , inputState  :: H.InputState
+  , compFunc    :: IORef (Maybe CompletionFunc)
   }
 
 --------------------------------------------------------------------------------
 -- | Reader environment for Byline.
-newtype Byline m a = Byline {unByline :: ReaderT Env m a}
+newtype Byline m a = Byline {unByline :: ReaderT Env (MaybeT m) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadReader Env)
 
 --------------------------------------------------------------------------------
--- | Create the default reader environment.
-defEnv :: H.InputState -> H.Settings IO -> H.InputT IO Env
-defEnv state settings = do
+defRenderMode :: H.InputT IO RenderMode
+defRenderMode = do
   termHint <- H.haveTerminalUI
 
   let mode = case termHint of -- FIXME: consider TERM and TERMINFO
                False -> Plain
                True  -> Simple
 
-  return Env { renderMode    = mode
-             , outHandle     = stdout
-             , hlSettings    = settings
-             , inputState    = state
-             , otherCompFunc = Nothing
-             }
+  return mode
+
+--------------------------------------------------------------------------------
+-- | Create the default reader environment.
+defEnv :: H.InputState -> RenderMode -> IORef (Maybe CompletionFunc) -> Env
+defEnv state mode comp =
+  Env { renderMode = mode
+      , outHandle  = stdout
+      , inputState = state
+      , compFunc   = comp
+      }
+
+--------------------------------------------------------------------------------
+eof :: (Monad m) => Byline m a
+eof = Byline $ lift (MaybeT $ return Nothing)
 
 --------------------------------------------------------------------------------
 -- | Lift an 'InputT' action into 'Byline'.
 liftInputT :: (MonadIO m) => H.InputT IO a -> Byline m a
 liftInputT input = do
-  env <- ask
-
-  -- let settings = case otherCompFunc env of
-  --                  Nothing -> hlSettings env
-  --                  Just f  -> setComplete f (hlSettings env)
-
-  -- Byline $ lift (runInputT settings input)
-
-  liftIO (H.queryInput (inputState env) $ H.withInterrupt input)
+  state <- asks inputState
+  liftIO (H.queryInput state $ H.withInterrupt input)
 
 --------------------------------------------------------------------------------
-runByline :: (MonadIO m) => Byline m a -> m a
-runByline byline = do
-  let settings = H.defaultSettings
+runByline :: (MonadIO m) => Byline m a -> m (Maybe a)
+runByline (Byline byline) = do
+  comp <- liftIO (newIORef Nothing)
+
+  let settings = H.setComplete (runCompletionFunction comp) H.defaultSettings
   state <- liftIO (H.initializeInput settings)
-  env   <- liftIO (H.queryInput state $ defEnv state settings)
-  output <- runReaderT (unByline byline) env
+  mode  <- liftIO (H.queryInput state defRenderMode)
+
+  output <- runMaybeT $ runReaderT byline (defEnv state mode comp)
   liftIO (H.closeInput state)
+
+  -- FIXME: Use a bracket in here
   return output

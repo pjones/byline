@@ -44,6 +44,7 @@ library
     System.Console.Byline
     System.Console.Byline.Internal.Byline
     System.Console.Byline.Internal.Color
+    System.Console.Byline.Internal.Completion
     System.Console.Byline.Internal.Modifiers
     System.Console.Byline.Internal.Render
     System.Console.Byline.Internal.Stylized

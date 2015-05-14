@@ -30,17 +30,18 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.IO.Class
 import qualified Control.Monad.Reader as Reader
+import Data.IORef
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
 import Data.Monoid
 import Data.Text (Text)
-import qualified Data.Text as T
+import qualified Data.Text as Text
 import System.Console.Byline.Internal.Byline
+import System.Console.Byline.Internal.Completion
 import System.Console.Byline.Internal.Render
 import System.Console.Byline.Internal.Stylized
 import System.Console.Byline.Primary
-import System.Console.Haskeline
 import Text.Printf (printf)
 
 --------------------------------------------------------------------------------
@@ -60,7 +61,6 @@ data Menu a = Menu
 -- a menu.
 data Choice a = Match a         -- ^ User picked a menu item.
               | Other Text      -- ^ User entered some text.
-              | Empty           -- ^ Ctrl-d or EOF encountered.
               deriving Show
 
 --------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ type Matcher a = Menu a -> Map Text a -> Text -> Choice a
 -- | Default prefix generator.  Creates numbers aligned for two-digit
 -- prefixes.
 numbered :: Int -> Stylized
-numbered = text . T.pack . printf "%2d"
+numbered = text . Text.pack . printf "%2d"
 
 --------------------------------------------------------------------------------
 -- | Helper function to produce a list of menu items matching the
@@ -83,7 +83,7 @@ matchOnPrefix :: Menu a -> Text -> [a]
 matchOnPrefix config input = filter prefixCheck (menuItems config)
   where
     asText i      = renderText Plain (menuDisplay config i)
-    prefixCheck i = input `T.isPrefixOf` asText i
+    prefixCheck i = input `Text.isPrefixOf` asText i
 
 --------------------------------------------------------------------------------
 -- | Default 'Matcher' function.  Checks to see if the user has input
@@ -105,19 +105,19 @@ defaultMatcher config prefixes input =
 
 --------------------------------------------------------------------------------
 -- | Default completion function.  Matches all of the menu items.
-defaultCompFunc :: (Monad m) => Menu a -> CompletionFunc m
+defaultCompFunc :: Menu a -> CompletionFunc
 defaultCompFunc config (left, _) = return ("", completions matches)
   where
     -- All matching menu items.
-    matches = if null left
+    matches = if Text.null left
                 then menuItems config
-                else matchOnPrefix config (T.pack $ reverse left)
+                else matchOnPrefix config (Text.reverse left)
 
     -- Convert a menu item to a String.
-    asString i = T.unpack $ renderText Plain (menuDisplay config i)
+    asText i = renderText Plain (menuDisplay config i)
 
     -- Convert menu items into Completion values.
-    completions = map (\i -> Completion (asString i) (asString i) False)
+    completions = map (\i -> Completion (asText i) (asText i) False)
 
 --------------------------------------------------------------------------------
 -- | Create a 'Menu' by giving a list of menu items and a function
@@ -173,17 +173,15 @@ askWithMenu :: (MonadIO m)
             -> Stylized         -- ^ The prompt.
             -> Byline m (Choice a)
 askWithMenu m prompt = do
-  currCompFunc <- Reader.asks otherCompFunc
+  currCompFunc <- Reader.asks compFunc >>= liftIO . readIORef
+
 
   -- Use the default completion function for menus, but not if another
   -- completion function is already active.
   withCompletionFunc (fromMaybe (defaultCompFunc m) currCompFunc) $ do
     prefixes <- displayMenu
     answer   <- ask prompt Nothing
-
-    case answer of
-      Nothing    -> return Empty
-      Just input -> return (menuMatcher m m prefixes input)
+    return (menuMatcher m m prefixes answer)
 
   where
     -- Print the entire menu.
@@ -211,7 +209,7 @@ askWithMenu m prompt = do
                       , menuDisplay m item -- The item.
                       ]
 
-      return (Map.insert (T.strip rendered) item cache)
+      return (Map.insert (Text.strip rendered) item cache)
 
 --------------------------------------------------------------------------------
 -- | Like 'askWithMenu' except that arbitrary input is not allowed.
@@ -229,5 +227,4 @@ askWithMenuRepeatedly m prompt errprompt = go m
 
       case answer of
         Match _ -> return answer
-        Empty   -> return Empty
         _       -> go (config {menuBeforePrompt = Just errprompt})
