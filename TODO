@@ -2,14 +2,17 @@
 #+title: To-Do List
 
 * Before First Release
-** TODO Don't loop (in `askUntil`) if running in non-interactive (file) mode
-** TODO `askWithMenuRepeatedly` should do the right thing if reading from a file
 ** TODO When rendering colors directly via `ask`, don't use color codes on Windows
-** TODO Put the `askUntil` confirmation function into the `Byline m a` monad
 ** TODO Use TERMINFO to figure out if we can use rgb colors
 ** TODO Downgrade full rgb colors to the default terminal colors
 ** TODO Restore exception safety in `runByline` and `withCompletionFunc`
    - I'm not using `runInputT` anymore so we don't get MonadException either
+** DONE Don't loop (in `askUntil`) if running in non-interactive (file) mode
+   CLOSED: [2015-05-14 Thu 17:00]
+** DONE `askWithMenuRepeatedly` should do the right thing if reading from a file
+   CLOSED: [2015-05-14 Thu 17:01]
+** DONE Put the `askUntil` confirmation function into the `Byline m a` monad
+   CLOSED: [2015-05-14 Thu 17:11]
 ** DONE Restore the ability to change the completion function
    CLOSED: [2015-05-14 Thu 15:23]
 ** DONE Simplify the interface by aborting on EOF

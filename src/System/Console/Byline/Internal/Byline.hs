@@ -16,6 +16,7 @@ module System.Console.Byline.Internal.Byline
        ( Byline (..)
        , Env    (..)
        , eof
+       , liftOuter
        , liftInputT
        , runByline
        ) where
@@ -72,6 +73,10 @@ defEnv state mode comp =
 --------------------------------------------------------------------------------
 eof :: (Monad m) => Byline m a
 eof = Byline $ lift (MaybeT $ return Nothing)
+
+--------------------------------------------------------------------------------
+liftOuter :: (Monad m) => m a -> Byline m a
+liftOuter = Byline . lift . lift
 
 --------------------------------------------------------------------------------
 -- | Lift an 'InputT' action into 'Byline'.

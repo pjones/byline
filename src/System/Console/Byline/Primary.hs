@@ -110,14 +110,16 @@ askPassword prompt maskchr = do
 -- 'sayLn').  When an acceptable answer from 'ask' is received, the
 -- confirmation function should return it with 'Right'.
 askUntil :: (MonadIO m)
-         => Stylized                       -- ^ The prompt.
-         -> Maybe Text                     -- ^ Optional default answer.
-         -> (Text -> Either Stylized Text) -- ^ Confirmation function.
+         => Stylized                           -- ^ The prompt.
+         -> Maybe Text                         -- ^ Optional default answer.
+         -> (Text -> m (Either Stylized Text)) -- ^ Confirmation function.
          -> Byline m Text
 askUntil prompt defans confirm = go where
   go = do
     answer <- ask prompt defans
-    case confirm answer of
+    check  <- liftOuter (confirm answer)
+
+    case check of
       Left msg     -> sayLn msg >> go
       Right result -> return result
 

@@ -46,8 +46,8 @@ main = void $ runByline $ do
 --------------------------------------------------------------------------------
 -- | Example confirmation function that requires the input to be three
 -- or more characters long.
-atLeastThreeChars :: Text -> Either Stylized Text
-atLeastThreeChars input =
+atLeastThreeChars :: Text -> IO (Either Stylized Text)
+atLeastThreeChars input = return $
   if Text.length input < 3
     then Left "You can do better."
     else Right input
