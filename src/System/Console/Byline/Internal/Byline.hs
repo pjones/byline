@@ -56,7 +56,7 @@ defRenderMode = do
 
   let mode = case termHint of -- FIXME: consider TERM and TERMINFO
                False -> Plain
-               True  -> Simple
+               True  -> Term256
 
   return mode
 

@@ -3,10 +3,17 @@
 let
   env = haskellPackages.ghcWithPackages (p: with p; [
     # Tools:
-    cabal-install hlint
+    cabal-install
+    hlint
 
     # Libraries:
-    haskeline ansi-terminal text mtl transformers
+    ansi-terminal
+    base
+    colour
+    haskeline
+    mtl
+    text
+    transformers
   ]);
 
 in stdenv.mkDerivation rec {
@@ -17,12 +24,13 @@ in stdenv.mkDerivation rec {
 
   buildPhase = ''
     ( HOME="$(mktemp -d)" # For cabal-install.
+      if [ ! -d .cabal-sandbox ]; then
+        cabal sandbox init
+      fi
+
       cabal configure -fmaintainer -fbuild-examples
       cabal build || exit 1
-      cabal test  || exit 1
-    )
-
-    hlint src
+    ) && hlint src
   '';
 
   installPhase = ''

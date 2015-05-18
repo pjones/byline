@@ -36,12 +36,12 @@ main = void $ runByline $ do
 
   if Text.null language
     then sayLn "Cat got your tongue?"
-    else sayLn ("I see, you like " <> text language <> ".")
+    else sayLn ("I see, you like " <> (text language <> fg red) <> ".")
 
   -- Keep prompting until a confirmation function indicates that the
   -- user's input is sufficient:
   name <- askUntil "What's your name? " Nothing atLeastThreeChars
-  sayLn ("Hey there " <> text name)
+  sayLn $ "Hey there " <> text name <> fg (rgb 108 113 196)
 
 --------------------------------------------------------------------------------
 -- | Example confirmation function that requires the input to be three

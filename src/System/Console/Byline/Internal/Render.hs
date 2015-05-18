@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 {-
 
 This file is part of the package byline. It is subject to the license
@@ -10,7 +12,7 @@ the LICENSE file.
 -}
 
 --------------------------------------------------------------------------------
--- | FIXME: Holy crap this needs some major refactoring!
+-- | Functions for turning stylized text into text or terminal commands.
 module System.Console.Byline.Internal.Render
        ( RenderMode (..)
        , render
@@ -19,12 +21,10 @@ module System.Console.Byline.Internal.Render
 
 --------------------------------------------------------------------------------
 import Control.Applicative
-import Control.Monad (void)
-import Data.Functor.Identity
 import Data.Maybe
-import Data.Monoid
 import Data.Text (Text)
-import qualified Data.Text as T
+import qualified Data.Text as Text
+import Data.Word
 import System.Console.ANSI as ANSI
 import System.Console.Byline.Internal.Color as C
 import System.Console.Byline.Internal.Stylized
@@ -32,55 +32,70 @@ import System.Console.Byline.Internal.Types
 import System.IO (Handle, hPutStr)
 
 --------------------------------------------------------------------------------
-data RenderMode = Plain  -- ^ Text only, no modifiers.
-                | Simple -- ^ Allow up to 8 colors.
-                | Full   -- ^ Allow all colors and modifiers.
+-- | How to render stylized text.
+data RenderMode = Plain   -- ^ Text only, no modifiers.
+                | Simple  -- ^ Allow up to 8 colors.
+                | Term256 -- ^ Allow up to 216 colors.
 
 --------------------------------------------------------------------------------
+-- | Instructions for formatting stylized text after the 'RenderMode'
+-- has already been considered.
+data RenderInstruction = RenderText Text
+                       | RenderSGR [SGR]
+
+--------------------------------------------------------------------------------
+-- | Send stylized text to the given handle.  This works on Windows
+-- thanks to the @ansi-terminal@ package.
 render :: RenderMode -> Handle -> Stylized -> IO ()
-render mode h stylized  =
-  case mode of
-    Plain  -> mapStylized void renderPlain  stylized
-    Simple -> mapStylized void renderSimple stylized
-    Full   -> mapStylized void renderFull   stylized
-
+render mode h stylized = mapM_ go (renderInstructions mode stylized)
   where
-    renderPlain :: (Text, Modifier) -> IO ()
-    renderPlain = hPutStr h . T.unpack . fst
-
-    renderSimple :: (Text, Modifier) -> IO ()
-    renderSimple (t, m) = do
-      hSetSGR h (modToSGR m)
-      hPutStr h (T.unpack t)
-      hSetSGR h [Reset]
-
-    renderFull :: (Text, Modifier) -> IO ()
-    renderFull = undefined
+    go :: RenderInstruction -> IO ()
+    go (RenderText t) = hPutStr h (Text.unpack t)
+    go (RenderSGR  s) = hSetSGR h s
 
 --------------------------------------------------------------------------------
--- | Render into a 'Text' value.  Won't work on Windows.
+-- | Render all modifiers as escape characters and return the
+-- resulting text.  On most terminals, sending this text to stdout
+-- will correctly render the modifiers.  However, this won't work on
+-- Windows consoles so you'll want to send 'Plain' as the 'RenderMode'.
 renderText :: RenderMode -> Stylized -> Text
-renderText mode stylized = runIdentity $
-  case mode of
-    Plain  -> mapStylized (fmap mconcat) renderPlain stylized
-    Simple -> mapStylized (fmap mconcat) renderSimple stylized
-    Full   -> mapStylized (fmap mconcat) renderFull stylized
-
+renderText mode stylized = Text.concat $ map go (renderInstructions mode stylized)
   where
-    renderPlain :: (Text, Modifier) -> Identity Text
-    renderPlain = return . fst
-
-    renderSimple :: (Text, Modifier) -> Identity Text
-    renderSimple (t, m) = return $ mconcat
-      [ T.pack (setSGRCode $ modToSGR m)
-      , t
-      , T.pack (setSGRCode [Reset])
-      ]
-
-    renderFull :: (Text, Modifier) -> Identity Text
-    renderFull = undefined
+    go :: RenderInstruction -> Text
+    go (RenderText t) = t
+    go (RenderSGR  _) = Text.empty
 
 --------------------------------------------------------------------------------
+-- | Internal function to turn stylized text into render instructions.
+renderInstructions :: RenderMode -> Stylized -> [RenderInstruction]
+renderInstructions mode stylized =
+  case stylized of
+    -- Text that should be rendered with a modifier.
+    StylizedText t m -> renderMod t m
+
+    -- No op.
+    StylizedMod    _ -> [ ]
+
+    -- Render a list of stylized text.
+    StylizedList   l -> concatMap (renderInstructions mode) l
+
+  where
+    renderMod :: Text -> Modifier -> [RenderInstruction]
+    renderMod t m =
+      case mode of
+        -- Only rendering text.
+        Plain -> [ RenderText t ]
+
+        -- Render text with modifiers.  The only difference between
+        -- 'Simple' and 'Term256' is handled by 'modToText'.
+        _     -> [ RenderSGR  (modToSGR m)
+                 , RenderText (modToText mode m)
+                 , RenderText t
+                 , RenderSGR [Reset]
+                 ]
+
+--------------------------------------------------------------------------------
+-- | Convert a modifier into a series of SGR codes.
 modToSGR :: Modifier -> [SGR]
 modToSGR m =
   catMaybes [ SetColor Foreground Dull <$> modColor modColorFG
@@ -104,7 +119,29 @@ modToSGR m =
       On  -> Just SingleUnderline
 
 --------------------------------------------------------------------------------
-mapStylized :: (Monad m) => (m [a] -> m a) -> ((Text, Modifier) -> m a) -> Stylized -> m a
-mapStylized _ g (StylizedText t m) = g (t, m)
-mapStylized _ g (StylizedMod m)    = g (T.empty, m)
-mapStylized f g (StylizedList l)   = f (mapM (mapStylized f g) l)
+-- | Convert modifiers into direct escape sequences for modifiers
+-- that can't be converted into SGR codes (e.g., RGB colors).
+--
+-- See: <http://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
+modToText :: RenderMode -> Modifier -> Text
+modToText Plain _   = Text.empty
+modToText Simple _  = Text.empty
+modToText Term256 m =
+  Text.concat $ catMaybes [ escape Foreground <$> modColor modColorFG
+                          , escape Background <$> modColor modColorBG
+                          ]
+
+  where
+    modColor :: (Modifier -> OnlyOne C.Color) -> Maybe (Word8, Word8, Word8)
+    modColor f = case unOne (f m) of
+                   Just (ColorRGB c) -> Just c
+                   _                 -> Nothing
+
+    -- Produce the correct CSI escape.
+    escape :: ConsoleLayer -> (Word8, Word8, Word8) -> Text
+    escape Foreground c = Text.concat ["\ESC[38;5;", colorIndex c, "m"]
+    escape Background c = Text.concat ["\ESC[48;5;", colorIndex c, "m"]
+
+    -- Return the 216-color index for (r, g, b).
+    colorIndex :: (Word8, Word8, Word8) -> Text
+    colorIndex c = Text.pack $ show (nearestColor c term256Locations)
