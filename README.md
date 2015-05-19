@@ -1,4 +1,4 @@
-# Byline -- Library for creating command-line interfaces (colors, menus, etc.)
+# Byline
 
 Byline simplifies writing interactive terminal applications by
 building upon [ansi-terminal][] and [haskeline][]. This makes it
@@ -11,7 +11,11 @@ The primary features of Byline include printing messages, prompting
 for input, and generating custom menus. It was inspired by the
 [highline] Ruby library and the [terminal library][] by Craig Roche.
 
+## Examples
+
+Please see the example programs in the `examples` directory.
+
 [ansi-terminal]: http://hackage.haskell.org/package/ansi-terminal
 [haskeline]: https://hackage.haskell.org/package/haskeline
 [highline]: https://github.com/JEG2/highline
-[terminal]: https://github.com/cdxr/terminal
+[terminal library]: https://github.com/cdxr/terminal
