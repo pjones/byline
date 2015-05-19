@@ -24,6 +24,7 @@ module System.Console.Byline.Internal.Byline
 
 --------------------------------------------------------------------------------
 import Control.Applicative
+import Control.Monad.Catch
 import Control.Monad.Reader
 import Control.Monad.Trans.Maybe
 import Data.IORef
@@ -51,7 +52,7 @@ data Env = Env
 --------------------------------------------------------------------------------
 -- | Reader environment for Byline.
 newtype Byline m a = Byline {unByline :: ReaderT Env (MaybeT m) a}
-  deriving (Functor, Applicative, Monad, MonadIO, MonadReader Env)
+  deriving (Functor, Applicative, Monad, MonadReader Env, MonadIO)
 
 --------------------------------------------------------------------------------
 defRenderMode :: H.InputT IO (RenderMode, RenderMode)
@@ -104,16 +105,18 @@ liftInputT input = do
   liftIO (H.queryInput state $ H.withInterrupt input)
 
 --------------------------------------------------------------------------------
-runByline :: (MonadIO m) => Byline m a -> m (Maybe a)
+runByline :: (MonadIO m, MonadMask m) => Byline m a -> m (Maybe a)
 runByline (Byline byline) = do
   comp <- liftIO (newIORef Nothing)
-
   let settings = H.setComplete (runCompletionFunction comp) H.defaultSettings
-  state <- liftIO (H.initializeInput settings)
-  modes <- liftIO (H.queryInput state defRenderMode)
 
-  output <- runMaybeT $ runReaderT byline (defEnv state modes comp)
-  liftIO (H.closeInput state)
+  bracketOnError (liftIO $ H.initializeInput settings) -- Acquire.
+                 (liftIO . H.cancelInput)              -- Release.
+                 (go comp)                             -- Use.
+  where
+    go comp state = do
+      modes  <- liftIO (H.queryInput state defRenderMode)
+      output <- runMaybeT $ runReaderT byline (defEnv state modes comp)
 
-  -- FIXME: Use a bracket in here
-  return output
+      liftIO (H.closeInput state)
+      return output

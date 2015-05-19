@@ -10,6 +10,7 @@ let
     ansi-terminal
     base
     colour
+    exceptions
     haskeline
     mtl
     terminfo-hs

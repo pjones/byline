@@ -142,9 +142,12 @@ withCompletionFunc comp byline = do
   compref <- Reader.asks compFunc
   current <- liftIO (readIORef compref)
 
-  -- FIXME: Use a bracket in here.
+  -- Temporally change the completion function.
+  -- Exceptions will be dealt with in 'runByline'.
   liftIO (writeIORef compref (Just comp))
   output <- byline
+
+  -- Reset the completion function and return the result.
   liftIO (writeIORef compref current)
   return output
 

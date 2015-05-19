@@ -2,7 +2,8 @@
 #+title: To-Do List
 
 * Before First Release
-** TODO Restore exception safety in `runByline` and `withCompletionFunc`
+** DONE Restore exception safety in `runByline` and `withCompletionFunc`
+   CLOSED: [2015-05-18 Mon 19:55]
    - I'm not using `runInputT` anymore so we don't get MonadException either
 ** DONE When rendering colors directly via `ask`, don't use color codes on Windows
    CLOSED: [2015-05-18 Mon 18:02]

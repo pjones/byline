@@ -64,6 +64,7 @@ library
                , ansi-terminal >= 0.6  && < 0.7
                , colour        >= 2.3  && < 2.4
                , containers    >= 0.5  && < 0.6
+               , exceptions    >= 0.8  && < 0.9
                , haskeline     >= 0.7  && < 0.8
                , mtl           >= 2.1  && < 2.2
                , terminfo-hs   >= 0.1  && < 0.2
