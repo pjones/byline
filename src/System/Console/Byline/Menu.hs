@@ -64,7 +64,8 @@ data Menu a = Menu
 --------------------------------------------------------------------------------
 -- | A type representing the choice made by a user while working with
 -- a menu.
-data Choice a = Match a    -- ^ User picked a menu item.
+data Choice a = NoItems    -- ^ Menu has no items to choose from.
+              | Match a    -- ^ User picked a menu item.
               | Other Text -- ^ User entered text that doesn't match an item.
               deriving Show
 
@@ -187,16 +188,22 @@ askWithMenu :: (MonadIO m)
             -> Byline m (Choice a)
 askWithMenu m prompt = do
   currCompFunc <- Reader.asks compFunc >>= liftIO . readIORef
-  let firstItem = Text.strip $ renderText Plain (menuItemPrefix m 1)
 
-  -- Use the default completion function for menus, but not if another
-  -- completion function is already active.
-  withCompletionFunc (fromMaybe (defaultCompFunc m) currCompFunc) $ do
-    prefixes <- displayMenu
-    answer   <- ask prompt (Just firstItem)
-    return (menuMatcher m m prefixes answer)
+  if null (menuItems m)
+    then return NoItems
+    else go currCompFunc
 
   where
+    -- Use the default completion function for menus, but not if another
+    -- completion function is already active.
+    go comp = withCompletionFunc (fromMaybe (defaultCompFunc m) comp) $ do
+      prefixes <- displayMenu
+      answer   <- ask prompt (Just firstItem)
+      return (menuMatcher m m prefixes answer)
+
+    -- The default menu item.
+    firstItem = Text.strip $ renderText Plain (menuItemPrefix m 1)
+
     -- Print the entire menu.
     displayMenu = do
       case menuBanner m of
@@ -239,5 +246,5 @@ askWithMenuRepeatedly m prompt errprompt = go m
       answer <- askWithMenu config prompt
 
       case answer of
-        Match _ -> return answer
-        _       -> go (config {menuBeforePrompt = Just errprompt})
+        Other _ -> go (config {menuBeforePrompt = Just errprompt})
+        _       -> return answer

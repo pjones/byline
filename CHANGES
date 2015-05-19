@@ -3,6 +3,11 @@
 #+title: Version History
 #+startup: showall
 
+* 0.2.0.0 (Pending)
+
+  - Added the NoItems constructor for Choice to deal with menus that
+    are asked to display an empty list.
+
 * 0.1.0.0 (May 19, 2015)
 
   - Initial release.
