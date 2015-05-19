@@ -174,13 +174,13 @@ askWithMenu :: (MonadIO m)
             -> Byline m (Choice a)
 askWithMenu m prompt = do
   currCompFunc <- Reader.asks compFunc >>= liftIO . readIORef
-
+  let firstItem = Text.strip $ renderText Plain (menuItemPrefix m 1)
 
   -- Use the default completion function for menus, but not if another
   -- completion function is already active.
   withCompletionFunc (fromMaybe (defaultCompFunc m) currCompFunc) $ do
     prefixes <- displayMenu
-    answer   <- ask prompt Nothing
+    answer   <- ask prompt (Just firstItem)
     return (menuMatcher m m prefixes answer)
 
   where

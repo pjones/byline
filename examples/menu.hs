@@ -38,7 +38,7 @@ items = [ Fruit     "Watermelon"
 main :: IO ()
 main = do
   let menuConfig = banner "Pick a snack: " $ menu items displayItem
-      prompt     = "pick one> "
+      prompt     = "Which snack? "
       onError    = "please pick a valid item!" <> fg red
 
   answer <- runByline $ askWithMenuRepeatedly menuConfig prompt onError
