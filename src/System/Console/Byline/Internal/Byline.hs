@@ -29,7 +29,10 @@ import Control.Monad.Trans.Maybe
 import Data.IORef
 import System.Console.Byline.Internal.Completion
 import System.Console.Byline.Internal.Render
+import System.Environment (lookupEnv)
 import System.IO (Handle, stdout)
+import qualified System.Terminfo as Term
+import qualified System.Terminfo.Caps as Term
 
 --------------------------------------------------------------------------------
 -- Import Haskeline, which is used to do the heavy lifting.
@@ -38,10 +41,11 @@ import qualified System.Console.Haskeline.IO as H
 
 --------------------------------------------------------------------------------
 data Env = Env
-  { renderMode  :: RenderMode
-  , outHandle   :: Handle
-  , inputState  :: H.InputState
-  , compFunc    :: IORef (Maybe CompletionFunc)
+  { sayMode    :: RenderMode
+  , askMode    :: RenderMode
+  , outHandle  :: Handle
+  , inputState :: H.InputState
+  , compFunc   :: IORef (Maybe CompletionFunc)
   }
 
 --------------------------------------------------------------------------------
@@ -50,21 +54,35 @@ newtype Byline m a = Byline {unByline :: ReaderT Env (MaybeT m) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadReader Env)
 
 --------------------------------------------------------------------------------
-defRenderMode :: H.InputT IO RenderMode
+defRenderMode :: H.InputT IO (RenderMode, RenderMode)
 defRenderMode = do
-  termHint <- H.haveTerminalUI
+  termHint  <- H.haveTerminalUI
+  maxColors <- liftIO (runMaybeT getMaxColors)
 
-  let mode = case termHint of -- FIXME: consider TERM and TERMINFO
-               False -> Plain
-               True  -> Term256
+  return $ case (termHint, maxColors) of
+             (True, Just n) | n < 256   -> (Simple,  Simple)
+                            | otherwise -> (Term256, Term256)
+             (True, Nothing)            -> (Simple,  Plain)
+             (False, _)                 -> (Plain,   Plain)
+  where
+    getMaxColors :: MaybeT IO Int
+    getMaxColors = do
+      term <- MaybeT (lookupEnv "TERM")
+      db   <- liftIO (Term.acquireDatabase term)
 
-  return mode
+      case db of
+        Left _  -> MaybeT (return Nothing)
+        Right d -> MaybeT (return $ Term.queryNumTermCap d Term.MaxColors)
 
 --------------------------------------------------------------------------------
 -- | Create the default reader environment.
-defEnv :: H.InputState -> RenderMode -> IORef (Maybe CompletionFunc) -> Env
-defEnv state mode comp =
-  Env { renderMode = mode
+defEnv :: H.InputState
+       -> (RenderMode, RenderMode)
+       -> IORef (Maybe CompletionFunc)
+       -> Env
+defEnv state (smode, amode) comp =
+  Env { sayMode    = smode
+      , askMode    = amode
       , outHandle  = stdout
       , inputState = state
       , compFunc   = comp
@@ -92,9 +110,9 @@ runByline (Byline byline) = do
 
   let settings = H.setComplete (runCompletionFunction comp) H.defaultSettings
   state <- liftIO (H.initializeInput settings)
-  mode  <- liftIO (H.queryInput state defRenderMode)
+  modes <- liftIO (H.queryInput state defRenderMode)
 
-  output <- runMaybeT $ runReaderT byline (defEnv state mode comp)
+  output <- runMaybeT $ runReaderT byline (defEnv state modes comp)
   liftIO (H.closeInput state)
 
   -- FIXME: Use a bracket in here

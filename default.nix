@@ -12,6 +12,7 @@ let
     colour
     haskeline
     mtl
+    terminfo-hs
     text
     transformers
   ]);

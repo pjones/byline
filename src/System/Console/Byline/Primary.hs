@@ -51,7 +51,7 @@ data ReportType = Error    -- ^ Report errors with: @"error: "@
 say :: (MonadIO m) => Stylized -> Byline m ()
 say message = do
   env <- Reader.ask
-  liftIO $ render (renderMode env) (outHandle env) message
+  liftIO $ render (sayMode env) (outHandle env) message
 
 --------------------------------------------------------------------------------
 -- | Like 'say', but append a newline character.
@@ -151,5 +151,5 @@ withCompletionFunc comp byline = do
 --------------------------------------------------------------------------------
 renderPrompt :: (Monad m) => Stylized -> Byline m String
 renderPrompt prompt = do
-    mode <- Reader.asks renderMode
+    mode <- Reader.asks askMode
     return $ T.unpack (renderText mode prompt)

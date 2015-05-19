@@ -2,11 +2,14 @@
 #+title: To-Do List
 
 * Before First Release
-** TODO When rendering colors directly via `ask`, don't use color codes on Windows
-** TODO Use TERMINFO to figure out if we can use rgb colors
-** TODO Downgrade full rgb colors to the default terminal colors
 ** TODO Restore exception safety in `runByline` and `withCompletionFunc`
    - I'm not using `runInputT` anymore so we don't get MonadException either
+** DONE When rendering colors directly via `ask`, don't use color codes on Windows
+   CLOSED: [2015-05-18 Mon 18:02]
+** DONE Use TERMINFO to figure out if we can use rgb colors
+   CLOSED: [2015-05-18 Mon 18:02]
+** DONE Downgrade full rgb colors to the default terminal colors
+   CLOSED: [2015-05-18 Mon 18:02]
 ** DONE Don't loop (in `askUntil`) if running in non-interactive (file) mode
    CLOSED: [2015-05-14 Thu 17:00]
 ** DONE `askWithMenuRepeatedly` should do the right thing if reading from a file
