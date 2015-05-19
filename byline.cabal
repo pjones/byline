@@ -14,12 +14,23 @@ build-type:    Simple
 stability:     experimental
 tested-with:   GHC == 7.8.4
 cabal-version: >=1.10
-description:   FIXME
+description:
+  Byline simplifies writing interactive terminal applications by
+  building upon @ansi-terminal@ and @haskeline@.  This makes it
+  possible to print messages and prompts that include terminal escape
+  sequences such as colors that are automatically disabled when
+  standard input is a file.  It also means that Byline works on both
+  POSIX-compatible systems and on Windows.
+  .
+  The primary features of Byline include printing messages, prompting
+  for input, and generating custom menus.  It was inspired by the
+  @highline@ Ruby library and the @terminal@ library by Craig Roche.
 
 --------------------------------------------------------------------------------
 extra-source-files:
   CHANGES
   README.md
+  examples/*.hs
 
 --------------------------------------------------------------------------------
 source-repository head
@@ -42,15 +53,17 @@ flag build-examples
 library
   exposed-modules:
     System.Console.Byline
+    System.Console.Byline.Color
+    System.Console.Byline.Completion
     System.Console.Byline.Internal.Byline
     System.Console.Byline.Internal.Color
     System.Console.Byline.Internal.Completion
-    System.Console.Byline.Internal.Modifiers
     System.Console.Byline.Internal.Render
-    System.Console.Byline.Internal.Stylized
     System.Console.Byline.Internal.Types
     System.Console.Byline.Menu
-    System.Console.Byline.Primary
+    System.Console.Byline.Modifiers
+    System.Console.Byline.Primitive
+    System.Console.Byline.Stylized
 
   hs-source-dirs: src
   default-language: Haskell2010

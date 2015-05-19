@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK hide #-}
+
 {-
 
 This file is part of the package byline. It is subject to the license
@@ -9,17 +11,24 @@ the LICENSE file.
 
 -}
 
-
 --------------------------------------------------------------------------------
+-- | Internal types.
 module System.Console.Byline.Internal.Types
-       ( Status  (..)
-       , OnlyOne (..)
+       ( Status   (..)
+       , OnlyOne  (..)
+       , Modifier (..)
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Data.Monoid
 
 --------------------------------------------------------------------------------
+-- Byline imports:
+import System.Console.Byline.Color (Color)
+
+--------------------------------------------------------------------------------
+-- | Like @Bool@, but with a different @Monoid@ instance.
 data Status = On | Off
 
 --------------------------------------------------------------------------------
@@ -31,6 +40,7 @@ instance Monoid Status where
   mappend On  Off = On
 
 --------------------------------------------------------------------------------
+-- | Like @Maybe@, but with a different @Monoid@ instance.
 newtype OnlyOne a = OnlyOne {unOne :: Maybe a}
 
 --------------------------------------------------------------------------------
@@ -38,3 +48,18 @@ instance Monoid (OnlyOne a) where
   mempty = OnlyOne Nothing
   mappend _ b@(OnlyOne (Just _)) = b
   mappend a _                    = a
+
+--------------------------------------------------------------------------------
+-- | Information about modifications made to stylized text.
+data Modifier = Modifier
+  { modColorFG   :: OnlyOne Color
+  , modColorBG   :: OnlyOne Color
+  , modBold      :: Status
+  , modUnderline :: Status
+  }
+
+--------------------------------------------------------------------------------
+instance Monoid Modifier where
+  mempty = Modifier mempty mempty mempty mempty
+  mappend (Modifier a b c d) (Modifier a' b' c' d') =
+    Modifier (a <> a') (b <> b') (c <> c') (d <> d')

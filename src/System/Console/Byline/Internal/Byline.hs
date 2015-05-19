@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# OPTIONS_HADDOCK hide #-}
 
 {-
 
@@ -12,24 +13,23 @@ the LICENSE file.
 -}
 
 --------------------------------------------------------------------------------
+-- | Internal module containing the @Byline@ monad transformer.
 module System.Console.Byline.Internal.Byline
        ( Byline (..)
        , Env    (..)
        , eof
-       , liftOuter
+       , liftBase
        , liftInputT
        , runByline
        ) where
 
-
 --------------------------------------------------------------------------------
+-- Library imports:
 import Control.Applicative
 import Control.Monad.Catch
 import Control.Monad.Reader
 import Control.Monad.Trans.Maybe
 import Data.IORef
-import System.Console.Byline.Internal.Completion
-import System.Console.Byline.Internal.Render
 import System.Environment (lookupEnv)
 import System.IO (Handle, stdout)
 import qualified System.Terminfo as Term
@@ -41,6 +41,12 @@ import qualified System.Console.Haskeline    as H
 import qualified System.Console.Haskeline.IO as H
 
 --------------------------------------------------------------------------------
+-- Byline imports:
+import System.Console.Byline.Internal.Completion
+import System.Console.Byline.Internal.Render
+
+--------------------------------------------------------------------------------
+-- | Reader environment for Byline.
 data Env = Env
   { sayMode    :: RenderMode
   , askMode    :: RenderMode
@@ -50,11 +56,12 @@ data Env = Env
   }
 
 --------------------------------------------------------------------------------
--- | Reader environment for Byline.
+-- | A monad transformer that encapsulates interactive actions.
 newtype Byline m a = Byline {unByline :: ReaderT Env (MaybeT m) a}
   deriving (Functor, Applicative, Monad, MonadReader Env, MonadIO)
 
 --------------------------------------------------------------------------------
+-- | Calculate the default rendering modes based on the terminal type.
 defRenderMode :: H.InputT IO (RenderMode, RenderMode)
 defRenderMode = do
   termHint  <- H.haveTerminalUI
@@ -90,12 +97,14 @@ defEnv state (smode, amode) comp =
       }
 
 --------------------------------------------------------------------------------
+-- | Signal an EOF and terminate all Byline actions.
 eof :: (Monad m) => Byline m a
 eof = Byline $ lift (MaybeT $ return Nothing)
 
 --------------------------------------------------------------------------------
-liftOuter :: (Monad m) => m a -> Byline m a
-liftOuter = Byline . lift . lift
+-- | Lift an operation in the base monad into Byline.
+liftBase :: (Monad m) => m a -> Byline m a
+liftBase = Byline . lift . lift
 
 --------------------------------------------------------------------------------
 -- | Lift an 'InputT' action into 'Byline'.
@@ -105,6 +114,19 @@ liftInputT input = do
   liftIO (H.queryInput state $ H.withInterrupt input)
 
 --------------------------------------------------------------------------------
+-- | Execute 'Byline' actions and produce a result within the base monad.
+--
+-- /A note about EOF:/
+--
+-- If an End of File (EOF) is encountered during an input action then
+-- this function will return @Nothing@.  This can occur when the user
+-- manually enters an EOF character by pressing @Control-d@ or if
+-- standard input is a file.
+--
+-- This decision was made to simplify the @Byline@ interface for
+-- actions that read user input and is a typical strategy for terminal
+-- applications.  If this isn't desirable, you may want to break your
+-- actions up into groups and call 'runByline' multiple times.
 runByline :: (MonadIO m, MonadMask m) => Byline m a -> m (Maybe a)
 runByline (Byline byline) = do
   comp <- liftIO (newIORef Nothing)

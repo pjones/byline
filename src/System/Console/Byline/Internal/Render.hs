@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_HADDOCK hide #-}
 
 {-
 
@@ -20,16 +21,20 @@ module System.Console.Byline.Internal.Render
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Control.Applicative
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Word
 import System.Console.ANSI as ANSI
-import System.Console.Byline.Internal.Color as C
-import System.Console.Byline.Internal.Stylized
-import System.Console.Byline.Internal.Types
 import System.IO (Handle, hPutStr)
+
+--------------------------------------------------------------------------------
+-- Byline imports:
+import System.Console.Byline.Internal.Color as C
+import System.Console.Byline.Internal.Types
+import System.Console.Byline.Stylized
 
 --------------------------------------------------------------------------------
 -- | How to render stylized text.
@@ -68,20 +73,10 @@ renderText mode stylized = Text.concat $ map go (renderInstructions mode stylize
 --------------------------------------------------------------------------------
 -- | Internal function to turn stylized text into render instructions.
 renderInstructions :: RenderMode -> Stylized -> [RenderInstruction]
-renderInstructions mode stylized =
-  case stylized of
-    -- Text that should be rendered with a modifier.
-    StylizedText t m -> renderMod t m
-
-    -- No op.
-    StylizedMod    _ -> [ ]
-
-    -- Render a list of stylized text.
-    StylizedList   l -> concatMap (renderInstructions mode) l
-
+renderInstructions mode = concat . mapStylized renderMod
   where
-    renderMod :: Text -> Modifier -> [RenderInstruction]
-    renderMod t m =
+    renderMod :: (Text, Modifier) -> [RenderInstruction]
+    renderMod (t, m) =
       case mode of
         -- Only rendering text.
         Plain -> [ RenderText t ]

@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK hide #-}
+
 {-
 
 This file is part of the package byline. It is subject to the license
@@ -10,6 +12,7 @@ the LICENSE file.
 -}
 
 --------------------------------------------------------------------------------
+-- | Internal completion operations.
 module System.Console.Byline.Internal.Completion
        ( CompletionFunc
        , Completion (..)
@@ -17,22 +20,17 @@ module System.Console.Byline.Internal.Completion
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Data.IORef
-import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified System.Console.Haskeline.Completion as H
 
 --------------------------------------------------------------------------------
-data Completion = Completion
-  { replacement :: Text
-  , display     :: Text
-  , isFinished  :: Bool
-  } deriving (Eq, Ord, Show)
+-- Byline imports:
+import System.Console.Byline.Completion
 
 --------------------------------------------------------------------------------
-type CompletionFunc = (Text, Text) -> IO (Text, [Completion])
-
---------------------------------------------------------------------------------
+-- | Convert a Byline completion result into a Haskeline completion result.
 convertCompletion :: Completion -> H.Completion
 convertCompletion (Completion r d i) =
   H.Completion { H.replacement = Text.unpack r
@@ -41,11 +39,17 @@ convertCompletion (Completion r d i) =
                }
 
 --------------------------------------------------------------------------------
+-- | Helper function that allows Byline to swap out the completion function.
 runCompletionFunction :: IORef (Maybe CompletionFunc) -> H.CompletionFunc IO
 runCompletionFunction compref (left, right) = do
   comp <- readIORef compref
 
   case comp of
     Nothing -> H.completeFilename (left, right)
-    Just f  -> do (output, completions) <- f (Text.pack left, Text.pack right)
-                  return (Text.unpack output, map convertCompletion completions)
+
+    Just f -> do
+      (output, completions) <-
+        f (Text.reverse $ Text.pack left, Text.pack right)
+
+      return (Text.unpack $ Text.reverse output,
+              map convertCompletion completions)

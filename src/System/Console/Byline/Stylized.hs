@@ -9,47 +9,59 @@ the LICENSE file.
 
 -}
 
-
 --------------------------------------------------------------------------------
-module System.Console.Byline.Internal.Stylized
-       ( Stylized (..)
-       , Modifier (..)
+-- | The stylized type and constructors.
+module System.Console.Byline.Stylized
+       ( Stylized
+       , Modifier
        , text
+       , mapStylized
+       , modStylized
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Data.Monoid
 import Data.String
 import Data.Text (Text)
 import qualified Data.Text as T
-import System.Console.Byline.Internal.Color
+
+--------------------------------------------------------------------------------
+-- Byline imports:
 import System.Console.Byline.Internal.Types
 
 --------------------------------------------------------------------------------
-data Modifier = Modifier
-  { modColorFG   :: OnlyOne Color
-  , modColorBG   :: OnlyOne Color
-  , modBold      :: Status
-  , modUnderline :: Status
-  }
-
---------------------------------------------------------------------------------
+-- | Stylized text.  Construct text with modifiers using string
+-- literals and the @OverloadedStrings@ extension and/or the 'text'
+-- function.
 data Stylized = StylizedText Text Modifier
               | StylizedMod Modifier
               | StylizedList [Stylized]
 
 --------------------------------------------------------------------------------
 -- | Helper function to create stylized text.  If you enable the
--- 'OverloadedStrings' extension then you can create stylized text
+-- @OverloadedStrings@ extension then you can create stylized text
 -- directly without using this function.
+--
+-- This function is also helpful for producing stylized text from an
+-- existing @Text@ value.
 text :: Text -> Stylized
 text t = StylizedText t mempty
 
 --------------------------------------------------------------------------------
-instance Monoid Modifier where
-  mempty = Modifier mempty mempty mempty mempty
-  mappend (Modifier a b c d) (Modifier a' b' c' d') =
-    Modifier (a <> a') (b <> b') (c <> c') (d <> d')
+-- | Map a function over stylized text.  The 'Modifier' type is
+-- opaque so this function might not be very useful outside of the
+-- Byline internals.
+mapStylized :: ((Text, Modifier) -> a) -> Stylized -> [a]
+mapStylized f (StylizedText t m) = [ f (t, m) ]
+mapStylized _ (StylizedMod    _) = [ ] -- No op.
+mapStylized f (StylizedList   l) = concatMap (mapStylized f) l
+
+--------------------------------------------------------------------------------
+-- | Constructor to modify stylized text.  This function is only
+-- useful to internal Byline functions.
+modStylized :: Modifier -> Stylized
+modStylized = StylizedMod
 
 --------------------------------------------------------------------------------
 instance Monoid Stylized where

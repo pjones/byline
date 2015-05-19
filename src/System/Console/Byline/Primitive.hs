@@ -12,7 +12,8 @@ the LICENSE file.
 -}
 
 --------------------------------------------------------------------------------
-module System.Console.Byline.Primary
+-- | Primitive operations such as printing messages and reading input.
+module System.Console.Byline.Primitive
        ( ReportType (..)
        , say
        , sayLn
@@ -26,6 +27,7 @@ module System.Console.Byline.Primary
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Control.Monad.IO.Class
 import qualified Control.Monad.Reader as Reader
 import Data.IORef
@@ -33,13 +35,16 @@ import Data.Maybe
 import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
-import System.Console.Byline.Internal.Byline
-import System.Console.Byline.Internal.Color
-import System.Console.Byline.Internal.Completion
-import System.Console.Byline.Internal.Modifiers
-import System.Console.Byline.Internal.Render
-import System.Console.Byline.Internal.Stylized
 import qualified System.Console.Haskeline as H
+
+--------------------------------------------------------------------------------
+--- Byline imports:
+import System.Console.Byline.Color
+import System.Console.Byline.Internal.Byline
+import System.Console.Byline.Internal.Completion
+import System.Console.Byline.Internal.Render
+import System.Console.Byline.Modifiers
+import System.Console.Byline.Stylized
 
 --------------------------------------------------------------------------------
 -- | Report types for the 'report' function.
@@ -61,8 +66,14 @@ sayLn message = say (message <> text "\n")
 --------------------------------------------------------------------------------
 -- | Read input after printing the given stylized text as a prompt.
 ask :: (MonadIO m)
-    => Stylized                 -- ^ The prompt.
-    -> Maybe Text               -- ^ Optional default answer.
+    => Stylized
+       -- ^ The prompt.
+
+    -> Maybe Text
+    -- ^ Optional default answer that will be returned if the user
+    -- presses return without providing any input (a zero-length
+    -- string).
+
     -> Byline m Text
 ask prompt defans = do
   let prompt' = case defans of
@@ -77,8 +88,7 @@ ask prompt defans = do
            | otherwise -> return (T.pack s)
 
 --------------------------------------------------------------------------------
--- | Read a single character of input.  Like other functions,
--- 'askChar' will return 'Nothing' if the user issues a Ctrl-d/EOF.
+-- | Read a single character of input.
 askChar :: (MonadIO m)
         => Stylized
         -> Byline m Char
@@ -92,8 +102,13 @@ askChar prompt = do
 -- | Read a password without echoing it to the terminal.  If a masking
 -- character is given it will replace each typed character.
 askPassword :: (MonadIO m)
-            => Stylized            -- ^ The prompt.
-            -> Maybe Char          -- ^ Masking character.
+            => Stylized
+               -- ^ The prompt.
+
+            -> Maybe Char
+            -- ^ Optional masking character that will be printed each
+            -- time the user presses a key.
+
             -> Byline m Text
 askPassword prompt maskchr = do
   pass <- liftInputT . H.getPassword maskchr =<< renderPrompt prompt
@@ -106,9 +121,9 @@ askPassword prompt maskchr = do
 -- returns a valid result.
 --
 -- The confirmation function receives the output from 'ask' and should
--- return a 'Left Stylized' to produce an error message (printed with
+-- return a @Left Stylized@ to produce an error message (printed with
 -- 'sayLn').  When an acceptable answer from 'ask' is received, the
--- confirmation function should return it with 'Right'.
+-- confirmation function should return it with @Right@.
 askUntil :: (MonadIO m)
          => Stylized                           -- ^ The prompt.
          -> Maybe Text                         -- ^ Optional default answer.
@@ -117,7 +132,7 @@ askUntil :: (MonadIO m)
 askUntil prompt defans confirm = go where
   go = do
     answer <- ask prompt defans
-    check  <- liftOuter (confirm answer)
+    check  <- liftBase (confirm answer)
 
     case check of
       Left msg     -> sayLn msg >> go

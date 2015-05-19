@@ -11,7 +11,8 @@ the LICENSE file.
 
 
 --------------------------------------------------------------------------------
-module System.Console.Byline.Internal.Modifiers
+-- | Modifiers for the @Stylized@ type.
+module System.Console.Byline.Modifiers
        ( fg
        , bg
        , bold
@@ -19,23 +20,35 @@ module System.Console.Byline.Internal.Modifiers
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Data.Monoid
+
+--------------------------------------------------------------------------------
+-- Byline imports:
 import System.Console.Byline.Internal.Color
-import System.Console.Byline.Internal.Stylized
 import System.Console.Byline.Internal.Types
+import System.Console.Byline.Stylized
 
 --------------------------------------------------------------------------------
+-- | Set the foreground color.  For example:
+--
+-- @
+--     "Hello World!" <> fg magenta
+-- @
 fg :: Color -> Stylized
-fg c = StylizedMod (mempty {modColorFG = OnlyOne (Just c)})
+fg c = modStylized (mempty {modColorFG = OnlyOne (Just c)})
 
 --------------------------------------------------------------------------------
+-- | Set the background color.
 bg :: Color -> Stylized
-bg c = StylizedMod (mempty {modColorBG = OnlyOne (Just c)})
+bg c = modStylized (mempty {modColorBG = OnlyOne (Just c)})
 
 --------------------------------------------------------------------------------
+-- | Produce bold text.
 bold :: Stylized
-bold = StylizedMod (mempty {modBold = On})
+bold = modStylized (mempty {modBold = On})
 
 --------------------------------------------------------------------------------
+-- | Produce underlined text.
 underline :: Stylized
-underline = StylizedMod (mempty {modUnderline = On})
+underline = modStylized (mempty {modUnderline = On})

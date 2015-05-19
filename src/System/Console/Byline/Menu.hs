@@ -12,6 +12,7 @@ the LICENSE file.
 -}
 
 --------------------------------------------------------------------------------
+-- | Functions and types for working with menus.
 module System.Console.Byline.Menu
        ( Menu
        , Choice (..)
@@ -26,6 +27,7 @@ module System.Console.Byline.Menu
        ) where
 
 --------------------------------------------------------------------------------
+-- Library imports:
 import Control.Applicative
 import Control.Monad
 import Control.Monad.IO.Class
@@ -37,37 +39,46 @@ import Data.Maybe
 import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as Text
-import System.Console.Byline.Internal.Byline
-import System.Console.Byline.Internal.Completion
-import System.Console.Byline.Internal.Render
-import System.Console.Byline.Internal.Stylized
-import System.Console.Byline.Primary
 import Text.Printf (printf)
 
 --------------------------------------------------------------------------------
--- | Internal representation of a menu.
+-- Byline imports:
+import System.Console.Byline.Internal.Byline
+import System.Console.Byline.Internal.Completion
+import System.Console.Byline.Internal.Render
+import System.Console.Byline.Primitive
+import System.Console.Byline.Stylized
+
+--------------------------------------------------------------------------------
+-- | Opaque type representing a menu containing items of type @a@.
 data Menu a = Menu
-  { menuItems        :: [a]
-  , menuBanner       :: Maybe Stylized
-  , menuDisplay      :: a -> Stylized
-  , menuItemPrefix   :: Int -> Stylized
-  , menuItemSuffix   :: Stylized
-  , menuBeforePrompt :: Maybe Stylized
-  , menuMatcher      :: Matcher a
+  { menuItems        :: [a]              -- ^ Menu items.
+  , menuBanner       :: Maybe Stylized   -- ^ Banner printed before menu.
+  , menuDisplay      :: a -> Stylized    -- ^ Stylize a menu item.
+  , menuItemPrefix   :: Int -> Stylized  -- ^ Stylize an item's index.
+  , menuItemSuffix   :: Stylized         -- ^ Printed after an item's index.
+  , menuBeforePrompt :: Maybe Stylized   -- ^ Printed before the prompt.
+  , menuMatcher      :: Matcher a        -- ^ Matcher function.
   }
 
 --------------------------------------------------------------------------------
 -- | A type representing the choice made by a user while working with
 -- a menu.
-data Choice a = Match a         -- ^ User picked a menu item.
-              | Other Text      -- ^ User entered some text.
+data Choice a = Match a    -- ^ User picked a menu item.
+              | Other Text -- ^ User entered text that doesn't match an item.
               deriving Show
 
 --------------------------------------------------------------------------------
 -- | A function that is given the input from a user while working in a
--- menu and should translate that into a 'Choice'.  The map contains
--- the menu item prefixes (numbers or letters) and the items
--- themselves.
+-- menu and should translate that into a 'Choice'.
+--
+-- The @Map@ contains the menu item indexes/prefixes (numbers or
+-- letters) and the items themselves.
+--
+-- The default matcher function allows the user to select a menu item
+-- by typing its index or part of its textual representation.  As long
+-- as input from the user is a unique prefix of one of the menu items
+-- then that item will be returned.
 type Matcher a = Menu a -> Map Text a -> Text -> Choice a
 
 --------------------------------------------------------------------------------
@@ -92,13 +103,15 @@ matchOnPrefix config input = filter prefixCheck (menuItems config)
 -- internal @numbered@ function).
 defaultMatcher :: Matcher a
 defaultMatcher config prefixes input =
-  case uniquePrefix <|> Map.lookup input prefixes of
+  case uniquePrefix <|> Map.lookup cleanInput prefixes of
     Nothing    -> Other input
     Just match -> Match match
 
   where
+    cleanInput = Text.strip input
+
     -- uniquePrefix :: Maybe a
-    uniquePrefix = let matches = matchOnPrefix config input
+    uniquePrefix = let matches = matchOnPrefix config cleanInput
                    in if length matches == 1
                         then listToMaybe matches
                         else Nothing
@@ -111,13 +124,13 @@ defaultCompFunc config (left, _) = return ("", completions matches)
     -- All matching menu items.
     matches = if Text.null left
                 then menuItems config
-                else matchOnPrefix config (Text.reverse left)
+                else matchOnPrefix config left
 
     -- Convert a menu item to a String.
     asText i = renderText Plain (menuDisplay config i)
 
     -- Convert menu items into Completion values.
-    completions = map (\i -> Completion (asText i) (asText i) False)
+    completions = map (\i -> Completion (asText i) (asText i) True)
 
 --------------------------------------------------------------------------------
 -- | Create a 'Menu' by giving a list of menu items and a function
@@ -164,7 +177,7 @@ matcher f m = m {menuMatcher = f}
 --------------------------------------------------------------------------------
 -- | Ask the user to choose an item from a menu.  The menu will only
 -- be shown once and the user's choice will be returned in a 'Choice'
--- value which may be 'Empty' or 'Other'.
+-- value.
 --
 -- If you want to force the user to only choose from the displayed
 -- menu items you should use 'askWithMenuRepeatedly' instead.
