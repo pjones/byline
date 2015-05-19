@@ -9,7 +9,7 @@ license-file:  LICENSE
 author:        Peter Jones <pjones@devalot.com>
 maintainer:    Peter Jones <pjones@devalot.com>
 copyright:     Copyright: (c) 2015 Peter J. Jones
-category:      System
+category:      System, User Interfaces
 build-type:    Simple
 stability:     experimental
 tested-with:   GHC == 7.8.4
