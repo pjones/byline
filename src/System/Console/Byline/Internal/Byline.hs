@@ -46,6 +46,12 @@ import System.Console.Byline.Internal.Completion
 import System.Console.Byline.Internal.Render
 
 --------------------------------------------------------------------------------
+-- The following is a kludge to avoid the "redundant import" warning
+-- when using GHC >= 7.10.x.  This should be removed after we decide
+-- to stop supporting GHC < 7.10.x.
+import Prelude
+
+--------------------------------------------------------------------------------
 -- | Reader environment for Byline.
 data Env = Env
   { sayMode    :: RenderMode

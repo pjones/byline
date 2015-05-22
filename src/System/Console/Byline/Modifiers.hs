@@ -30,6 +30,12 @@ import System.Console.Byline.Internal.Types
 import System.Console.Byline.Stylized
 
 --------------------------------------------------------------------------------
+-- The following is a kludge to avoid the "redundant import" warning
+-- when using GHC >= 7.10.x.  This should be removed after we decide
+-- to stop supporting GHC < 7.10.x.
+import Prelude
+
+--------------------------------------------------------------------------------
 -- | Set the foreground color.  For example:
 --
 -- @
