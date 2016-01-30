@@ -1,0 +1,12 @@
+flags:
+  byline:
+    maintainer: true
+    build-examples: true
+
+packages:
+  - ../
+
+extra-deps:
+  - terminfo-hs-0.2.1
+
+resolver: lts-4.2

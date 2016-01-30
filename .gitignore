@@ -1,4 +1,2 @@
-/.cabal-sandbox
-/cabal.sandbox.config
-/dist
-/.deps.mk
+/.stack-work
+/build/.stack-work

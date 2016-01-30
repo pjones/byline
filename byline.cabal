@@ -8,12 +8,12 @@ license:       BSD2
 license-file:  LICENSE
 author:        Peter Jones <pjones@devalot.com>
 maintainer:    Peter Jones <pjones@devalot.com>
-copyright:     Copyright: (c) 2015 Peter J. Jones
+copyright:     Copyright: (c) 2015,2016 Peter J. Jones
 category:      System, User Interfaces
 build-type:    Simple
 stability:     experimental
-tested-with:   GHC == 7.8.4, GHC == 7.10.1
-cabal-version: >=1.10
+tested-with:   GHC == 7.8.4, GHC == 7.10.3
+cabal-version: >=1.18
 description:
   Byline simplifies writing interactive terminal applications by
   building upon @ansi-terminal@ and @haskeline@.  This makes it
