@@ -141,8 +141,8 @@ askUntil prompt defans confirm = go where
 --------------------------------------------------------------------------------
 -- | Output stylized text with a prefix determined by 'ReportType'.
 report :: (MonadIO m) => ReportType -> Stylized -> Byline m ()
-report (Error) message   = say $ (text "error: "   <> fg red)    <> message
-report (Warning) message = say $ (text "warning: " <> fg yellow) <> message
+report Error message   = say $ (text "error: "   <> fg red)    <> message
+report Warning message = say $ (text "warning: " <> fg yellow) <> message
 
 --------------------------------------------------------------------------------
 -- | Like 'report', but append a newline character.

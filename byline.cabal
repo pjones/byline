@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 name:          byline
-version:       0.2.1.0
+version:       0.2.2.0
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
 homepage:      http://github.com/pjones/byline
 bug-reports:   http://github.com/pjones/byline/issues
@@ -28,7 +28,7 @@ description:
 
 --------------------------------------------------------------------------------
 extra-source-files:
-  CHANGES
+  CHANGES.md
   README.md
   examples/*.hs
 
@@ -71,7 +71,6 @@ library
 
   if flag(maintainer)
     ghc-options: -Werror
-    ghc-prof-options: -prof -auto-all
 
   build-depends: base          >= 4.7  && < 5.0
                , ansi-terminal >= 0.6  && < 0.7

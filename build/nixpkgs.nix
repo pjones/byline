@@ -4,7 +4,13 @@ stdenv.mkDerivation {
   name = "byline";
 
   buildInputs = [
-    haskell.packages.lts-4_2.ghc
+    # GHC:
+    haskell.packages.lts-5_15.ghc
+
+    # Non-Haskell Dependencies:
+    zlib      # For the header files.
+    zlib.out  # For the .so file.
+    gnupg     # For signing packages.
     ncurses
   ];
 }
