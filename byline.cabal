@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 name:          byline
-version:       0.2.3.0
+version:       0.2.4.0
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
 homepage:      http://github.com/pjones/byline
 bug-reports:   http://github.com/pjones/byline/issues
@@ -8,7 +8,7 @@ license:       BSD2
 license-file:  LICENSE
 author:        Peter Jones <pjones@devalot.com>
 maintainer:    Peter Jones <pjones@devalot.com>
-copyright:     Copyright: (c) 2015,2016 Peter J. Jones
+copyright:     Copyright: (c) 2015-2017 Peter J. Jones
 category:      System, User Interfaces
 build-type:    Simple
 stability:     experimental

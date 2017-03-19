@@ -1,5 +1,11 @@
 # Version History
 
+## 0.2.4.0 (March 19, 2017)
+
+  - Update dependency bounds
+
+  - Add Travis CI build status for supported versions of GHC
+
 ## 0.2.3.0 (November 1, 2016)
 
   - Increase upper bound on transformers package to `0.5` (Thanks to
