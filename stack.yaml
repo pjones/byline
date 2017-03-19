@@ -1,4 +1,4 @@
-resolver: lts-5.15
+resolver: lts-7.20
 
 flags:
   byline:
@@ -6,7 +6,7 @@ flags:
     build-examples: true
 
 packages:
-  - ../
+  - ./
 
 extra-deps:
   - terminfo-hs-0.2.1
