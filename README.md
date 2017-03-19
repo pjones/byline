@@ -1,5 +1,7 @@
 # Byline
 
+[![Build Status](https://travis-ci.org/pjones/byline.svg?branch=master)](https://travis-ci.org/pjones/byline)
+
 Byline simplifies writing interactive terminal applications by
 building upon [ansi-terminal][] and [haskeline][]. This makes it
 possible to print messages and prompts that include terminal escape

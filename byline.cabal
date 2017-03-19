@@ -12,7 +12,7 @@ copyright:     Copyright: (c) 2015,2016 Peter J. Jones
 category:      System, User Interfaces
 build-type:    Simple
 stability:     experimental
-tested-with:   GHC == 7.8.4, GHC == 7.10.3
+tested-with:   GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
 cabal-version: >=1.18
 description:
   Byline simplifies writing interactive terminal applications by
