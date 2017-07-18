@@ -99,10 +99,11 @@ renderInstructions mode = concat . mapStylized renderMod
 -- | Convert a modifier into a series of SGR codes.
 modToSGR :: Modifier -> [SGR]
 modToSGR m =
-  catMaybes [ SetColor Foreground Dull <$> modColor modColorFG
-            , SetColor Background Dull <$> modColor modColorBG
-            , SetConsoleIntensity      <$> modIntensity
-            , SetUnderlining           <$> modUnderlining
+  catMaybes [ SetColor Foreground Dull    <$> modColor modColorFG
+            , SetColor Background Dull    <$> modColor modColorBG
+            , SetConsoleIntensity         <$> modIntensity
+            , SetUnderlining              <$> modUnderlining
+            , SetSwapForegroundBackground <$> modSwapForegroundBackground
             ]
 
   where
@@ -118,6 +119,12 @@ modToSGR m =
     modUnderlining = case modUnderline m of
       Off -> Nothing
       On  -> Just SingleUnderline
+
+    modSwapForegroundBackground :: Maybe Bool
+    modSwapForegroundBackground = case modSwapFgBg m of
+      Off -> Nothing
+      On  -> Just True
+
 
 --------------------------------------------------------------------------------
 -- | Convert modifiers into direct escape sequences for modifiers

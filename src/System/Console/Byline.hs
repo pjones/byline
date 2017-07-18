@@ -75,7 +75,7 @@ module System.Console.Byline
          -- This means you can change attributes of the text by using
          -- the following functions along with @mappend@ or the @(<>)@
          -- operator.
-       , fg, bg, bold, underline
+       , fg, bg, bold, underline, swapFgBg
 
          -- * Specifying Colors
        , Color

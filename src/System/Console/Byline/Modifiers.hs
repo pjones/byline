@@ -17,6 +17,7 @@ module System.Console.Byline.Modifiers
        , bg
        , bold
        , underline
+       , swapFgBg
        ) where
 
 --------------------------------------------------------------------------------
@@ -58,3 +59,8 @@ bold = modStylized (mempty {modBold = On})
 -- | Produce underlined text.
 underline :: Stylized
 underline = modStylized (mempty {modUnderline = On})
+
+--------------------------------------------------------------------------------
+-- | Produce swapped foreground/background text.
+swapFgBg :: Stylized
+swapFgBg = modStylized (mempty {modSwapFgBg = On})
