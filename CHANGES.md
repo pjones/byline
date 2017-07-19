@@ -1,5 +1,9 @@
 # Version History
 
+## 0.3.0.0 (Unreleased)
+
+  - New style modifier: `swapFgBg`
+
 ## 0.2.4.0 (March 19, 2017)
 
   - Update dependency bounds
