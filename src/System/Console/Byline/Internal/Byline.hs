@@ -66,6 +66,9 @@ data Env = Env
 newtype Byline m a = Byline {unByline :: ReaderT Env (MaybeT m) a}
   deriving (Functor, Applicative, Monad, MonadReader Env, MonadIO)
 
+instance MonadTrans Byline where
+  lift = liftBase
+
 --------------------------------------------------------------------------------
 -- | Calculate the default rendering modes based on the terminal type.
 defRenderMode :: H.InputT IO (RenderMode, RenderMode)
