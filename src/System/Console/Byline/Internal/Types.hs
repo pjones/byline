@@ -56,10 +56,11 @@ data Modifier = Modifier
   , modColorBG   :: OnlyOne Color
   , modBold      :: Status
   , modUnderline :: Status
+  , modSwapFgBg  :: Status
   }
 
 --------------------------------------------------------------------------------
 instance Monoid Modifier where
-  mempty = Modifier mempty mempty mempty mempty
-  mappend (Modifier a b c d) (Modifier a' b' c' d') =
-    Modifier (a <> a') (b <> b') (c <> c') (d <> d')
+  mempty = Modifier mempty mempty mempty mempty mempty
+  mappend (Modifier a b c d e) (Modifier a' b' c' d' e') =
+    Modifier (a <> a') (b <> b') (c <> c') (d <> d') (e <> e')
