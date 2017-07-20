@@ -2,7 +2,9 @@
 
 ## 0.3.0.0 (Unreleased)
 
-  - New style modifier: `swapFgBg`
+  - New style modifier: `swapFgBg` (Thanks to Sam Tay)
+
+  - `Byline` is now an instance of `MonadTrans` (Thanks to Sam Tay)
 
 ## 0.2.4.0 (March 19, 2017)
 
