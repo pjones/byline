@@ -1,6 +1,6 @@
 # Version History
 
-## 0.3.0.0 (Unreleased)
+## 0.3.0.0 (December 1, 2017)
 
   - New style modifier: `swapFgBg` (Thanks to Sam Tay)
 
