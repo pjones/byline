@@ -1,5 +1,11 @@
 # Version History
 
+## 0.3.1.0 (March 20, 2018)
+
+  - Update dependency bounds
+
+  - Deal with the Semigroup Monoid Proposal
+
 ## 0.3.0.0 (December 1, 2017)
 
   - New style modifier: `swapFgBg` (Thanks to Sam Tay)
