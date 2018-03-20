@@ -22,6 +22,7 @@ module System.Console.Byline.Stylized
 --------------------------------------------------------------------------------
 -- Library imports:
 import Data.Monoid
+import qualified Data.Semigroup as Semi
 import Data.String
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -64,23 +65,27 @@ modStylized :: Modifier -> Stylized
 modStylized = StylizedMod
 
 --------------------------------------------------------------------------------
-instance Monoid Stylized where
-  mempty = StylizedText mempty mempty
-
+instance Semi.Semigroup Stylized where
   -- StylizedText on LHS.
-  mappend a@(StylizedText _ _) b@(StylizedText _ _) = StylizedList [a, b]
-  mappend (StylizedText t m) (StylizedMod m')       = StylizedText t (m <> m')
-  mappend a@(StylizedText _ _) (StylizedList b)     = StylizedList (a:b)
+  (<>) a@(StylizedText _ _) b@(StylizedText _ _) = StylizedList [a, b]
+  (<>) (StylizedText t m) (StylizedMod m')       = StylizedText t (m <> m')
+  (<>) a@(StylizedText _ _) (StylizedList b)     = StylizedList (a:b)
 
   -- StylizedMod on LHS.
-  mappend (StylizedMod m) (StylizedText t m') = StylizedText t (m <> m')
-  mappend (StylizedMod m) (StylizedMod m')    = StylizedMod (m <> m')
-  mappend m@(StylizedMod _) (StylizedList l)  = StylizedList (map (m <>) l)
+  (<>) (StylizedMod m) (StylizedText t m') = StylizedText t (m <> m')
+  (<>) (StylizedMod m) (StylizedMod m')    = StylizedMod (m <> m')
+  (<>) m@(StylizedMod _) (StylizedList l)  = StylizedList (map (m <>) l)
 
   -- StylizedList on LHS.
-  mappend (StylizedList l) t@(StylizedText _ _) = StylizedList (l <> [t])
-  mappend (StylizedList l) m@(StylizedMod _)    = StylizedList (map (<> m) l)
-  mappend (StylizedList l) (StylizedList l')    = StylizedList (l <> l')
+  (<>) (StylizedList l) t@(StylizedText _ _) = StylizedList (l <> [t])
+  (<>) (StylizedList l) m@(StylizedMod _)    = StylizedList (map (<> m) l)
+  (<>) (StylizedList l) (StylizedList l')    = StylizedList (l <> l')
+
+
+--------------------------------------------------------------------------------
+instance Monoid Stylized where
+  mempty = StylizedText mempty mempty
+  mappend = (Semi.<>)
 
 --------------------------------------------------------------------------------
 instance IsString Stylized where

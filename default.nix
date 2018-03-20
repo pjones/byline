@@ -1,17 +1,20 @@
-# These arguments are so you can override settings from the command
-# line using the `nix-hs' tool.
-{ nixpkgs   ? import <nixpkgs> { }
-, compiler  ? "default"
-, profiling ? false
-}:
+{ pkgs ? (import <nixpkgs> {}).pkgs }:
 
 let
-  pkgs = nixpkgs;
+  # List any extra packages you want available while your package is
+  # building or while in a nix shell:
+  extraPackages = with pkgs; [ ];
 
-  buildInputs = with pkgs; [
-    # List extra dependencies here.
-  ];
-
+  # Helpful if you want to override any Haskell packages:
+  haskell = pkgs.haskellPackages;
 in
-  pkgs.nix-hs.interactive ./byline.nix
-    { inherit compiler profiling buildInputs; }
+
+# Load the local nix file and use the overrides from above:
+haskell.callPackage ./byline.nix {
+  mkDerivation = { buildTools ? []
+                 , ...
+                 }@args:
+    haskell.mkDerivation (args // {
+      buildTools = buildTools ++ extraPackages;
+    });
+}

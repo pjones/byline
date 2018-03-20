@@ -22,6 +22,7 @@ module System.Console.Byline.Internal.Types
 --------------------------------------------------------------------------------
 -- Library imports:
 import Data.Monoid
+import qualified Data.Semigroup as Semi
 
 --------------------------------------------------------------------------------
 -- Byline imports:
@@ -32,22 +33,30 @@ import System.Console.Byline.Color (Color)
 data Status = On | Off
 
 --------------------------------------------------------------------------------
+instance Semi.Semigroup Status where
+  (<>) Off Off = Off
+  (<>) Off On  = On
+  (<>) On  On  = On
+  (<>) On  Off = On
+
+--------------------------------------------------------------------------------
 instance Monoid Status where
   mempty = Off
-  mappend Off Off = Off
-  mappend Off On  = On
-  mappend On  On  = On
-  mappend On  Off = On
+  mappend = (Semi.<>)
 
 --------------------------------------------------------------------------------
 -- | Like @Maybe@, but with a different @Monoid@ instance.
 newtype OnlyOne a = OnlyOne {unOne :: Maybe a}
 
 --------------------------------------------------------------------------------
+instance Semi.Semigroup (OnlyOne a) where
+  (<>) _ b@(OnlyOne (Just _)) = b
+  (<>) a _                    = a
+
+--------------------------------------------------------------------------------
 instance Monoid (OnlyOne a) where
   mempty = OnlyOne Nothing
-  mappend _ b@(OnlyOne (Just _)) = b
-  mappend a _                    = a
+  mappend = (Semi.<>)
 
 --------------------------------------------------------------------------------
 -- | Information about modifications made to stylized text.
@@ -60,7 +69,11 @@ data Modifier = Modifier
   }
 
 --------------------------------------------------------------------------------
+instance Semi.Semigroup Modifier where
+  (<>) (Modifier a b c d e) (Modifier a' b' c' d' e') =
+    Modifier (a <> a') (b <> b') (c <> c') (d <> d') (e <> e')
+
+--------------------------------------------------------------------------------
 instance Monoid Modifier where
   mempty = Modifier mempty mempty mempty mempty mempty
-  mappend (Modifier a b c d e) (Modifier a' b' c' d' e') =
-    Modifier (a <> a') (b <> b') (c <> c') (d <> d') (e <> e')
+  mappend = (Semi.<>)

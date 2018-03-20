@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 name:          byline
-version:       0.3.0.0
+version:       0.3.1.0
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
 homepage:      http://github.com/pjones/byline
 bug-reports:   http://github.com/pjones/byline/issues
@@ -8,12 +8,12 @@ license:       BSD2
 license-file:  LICENSE
 author:        Peter Jones <pjones@devalot.com>
 maintainer:    Peter Jones <pjones@devalot.com>
-copyright:     Copyright: (c) 2015-2017 Peter J. Jones
+copyright:     Copyright: (c) 2015-2018 Peter J. Jones
 category:      System, User Interfaces
 build-type:    Simple
 stability:     experimental
-tested-with:   GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2
-cabal-version: >=1.18
+tested-with:   GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.1
+cabal-version: 1.18
 description:
   Byline simplifies writing interactive terminal applications by
   building upon @ansi-terminal@ and @haskeline@.  This makes it
@@ -73,15 +73,18 @@ library
     ghc-options: -Werror
 
   build-depends: base          >= 4.7  && < 5.0
-               , ansi-terminal >= 0.6  && < 0.8
+               , ansi-terminal >= 0.6  && < 0.9
                , colour        >= 2.3  && < 2.4
                , containers    >= 0.5  && < 0.6
-               , exceptions    >= 0.8  && < 0.9
+               , exceptions    >= 0.8  && < 0.11
                , haskeline     >= 0.7  && < 0.8
                , mtl           >= 2.1  && < 2.3
                , terminfo-hs   >= 0.1  && < 0.3
                , text          >= 0.11 && < 1.3
                , transformers  >= 0.3  && < 0.6
+
+  if !impl(ghc >= 8.0)
+    build-depends: semigroups == 0.18.*
 
 --------------------------------------------------------------------------------
 executable simple
