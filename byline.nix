@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "byline";
-  version = "0.3.1.0";
+  version = "0.3.2.0";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
@@ -11,7 +11,6 @@ mkDerivation {
     ansi-terminal base colour containers exceptions haskeline mtl
     terminfo-hs text transformers
   ];
-  executableHaskellDepends = [ base text ];
   homepage = "http://github.com/pjones/byline";
   description = "Library for creating command-line interfaces (colors, menus, etc.)";
   license = stdenv.lib.licenses.bsd2;

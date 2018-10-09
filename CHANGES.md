@@ -1,5 +1,9 @@
 # Version History
 
+## 0.3.2.0 (October 09, 2018)
+
+  - Update dependency bounds
+
 ## 0.3.1.0 (March 20, 2018)
 
   - Update dependency bounds

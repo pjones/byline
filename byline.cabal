@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 name:          byline
-version:       0.3.1.0
+version:       0.3.2.0
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
 homepage:      http://github.com/pjones/byline
 bug-reports:   http://github.com/pjones/byline/issues
@@ -75,7 +75,7 @@ library
   build-depends: base          >= 4.7  && < 5.0
                , ansi-terminal >= 0.6  && < 0.9
                , colour        >= 2.3  && < 2.4
-               , containers    >= 0.5  && < 0.6
+               , containers    >= 0.5  && < 0.7
                , exceptions    >= 0.8  && < 0.11
                , haskeline     >= 0.7  && < 0.8
                , mtl           >= 2.1  && < 2.3
