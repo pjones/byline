@@ -1,5 +1,11 @@
 # Version History
 
+## 0.3.2.1 (April 15, 2019)
+
+  - Update dependency bounds
+
+  - Builds on NixOS 18.09, 19.03, and unstable
+
 ## 0.3.2.0 (October 09, 2018)
 
   - Update dependency bounds

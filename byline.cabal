@@ -1,18 +1,17 @@
 --------------------------------------------------------------------------------
 name:          byline
-version:       0.3.2.0
+version:       0.3.2.1
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
-homepage:      http://github.com/pjones/byline
-bug-reports:   http://github.com/pjones/byline/issues
+homepage:      https://code.devalot.com/open/byline
+bug-reports:   https://code.devalot.com/open/byline/issues
 license:       BSD2
 license-file:  LICENSE
 author:        Peter Jones <pjones@devalot.com>
 maintainer:    Peter Jones <pjones@devalot.com>
-copyright:     Copyright: (c) 2015-2018 Peter J. Jones
+copyright:     Copyright: (c) 2015-2019 Peter J. Jones
 category:      System, User Interfaces
 build-type:    Simple
 stability:     experimental
-tested-with:   GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.1
 cabal-version: 1.18
 description:
   Byline simplifies writing interactive terminal applications by
@@ -35,13 +34,7 @@ extra-source-files:
 --------------------------------------------------------------------------------
 source-repository head
   type: git
-  location: git://github.com/pjones/byline.git
-
---------------------------------------------------------------------------------
-flag maintainer
-  description: Enable settings for the package maintainer.
-  manual: True
-  default: False
+  location: https://code.devalot.com/open/byline.git
 
 --------------------------------------------------------------------------------
 flag build-examples
@@ -69,11 +62,8 @@ library
   default-language: Haskell2010
   ghc-options: -Wall -fwarn-incomplete-uni-patterns
 
-  if flag(maintainer)
-    ghc-options: -Werror
-
   build-depends: base          >= 4.7  && < 5.0
-               , ansi-terminal >= 0.6  && < 0.9
+               , ansi-terminal >= 0.6  && < 0.10
                , colour        >= 2.3  && < 2.4
                , containers    >= 0.5  && < 0.7
                , exceptions    >= 0.8  && < 0.11
@@ -93,9 +83,6 @@ executable simple
   ghc-options: -Wall -fwarn-incomplete-uni-patterns
   build-depends: base, byline, text
 
-  if flag(maintainer)
-    ghc-options: -Werror
-
   if !flag(build-examples)
     buildable: False
 
@@ -105,9 +92,6 @@ executable menu
   default-language: Haskell2010
   ghc-options: -Wall -fwarn-incomplete-uni-patterns
   build-depends: base, byline, text
-
-  if flag(maintainer)
-    ghc-options: -Werror
 
   if !flag(build-examples)
     buildable: False
