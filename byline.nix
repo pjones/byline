@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "byline";
-  version = "0.3.2.1";
+  version = "1.0.0.0";
   src = ./.;
   isLibrary = true;
   isExecutable = true;

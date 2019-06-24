@@ -21,7 +21,6 @@ module System.Console.Byline.Stylized
 
 --------------------------------------------------------------------------------
 -- Library imports:
-import Data.Monoid
 import qualified Data.Semigroup as Semi
 import Data.String
 import Data.Text (Text)

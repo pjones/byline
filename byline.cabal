@@ -1,18 +1,19 @@
+cabal-version: 2.2
+
 --------------------------------------------------------------------------------
 name:          byline
-version:       0.3.2.1
+version:       1.0.0.0
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
 homepage:      https://code.devalot.com/open/byline
 bug-reports:   https://code.devalot.com/open/byline/issues
-license:       BSD2
+license:       BSD-2-Clause
 license-file:  LICENSE
 author:        Peter Jones <pjones@devalot.com>
 maintainer:    Peter Jones <pjones@devalot.com>
 copyright:     Copyright: (c) 2015-2019 Peter J. Jones
 category:      System, User Interfaces
 build-type:    Simple
-stability:     experimental
-cabal-version: 1.18
+stability:     stable
 description:
   Byline simplifies writing interactive terminal applications by
   building upon @ansi-terminal@ and @haskeline@.  This makes it
@@ -43,7 +44,34 @@ flag build-examples
   default: False
 
 --------------------------------------------------------------------------------
+common options
+  default-language: Haskell2010
+  ghc-options: -Wall
+               -Werror=incomplete-record-updates
+               -Werror=incomplete-uni-patterns
+               -Werror=missing-home-modules
+               -Widentities
+               -Wmissing-export-lists
+               -Wredundant-constraints
+
+--------------------------------------------------------------------------------
+common dependencies
+  build-depends: base          >= 4.9  && < 5.0
+               , ansi-terminal >= 0.6  && < 0.10
+               , colour        >= 2.3  && < 2.4
+               , containers    >= 0.5  && < 0.7
+               , exceptions    >= 0.8  && < 0.11
+               , haskeline     >= 0.7  && < 0.8
+               , mtl           >= 2.1  && < 2.3
+               , terminfo-hs   >= 0.1  && < 0.3
+               , text          >= 0.11 && < 1.3
+               , transformers  >= 0.3  && < 0.6
+
+--------------------------------------------------------------------------------
 library
+  import: options, dependencies
+  hs-source-dirs: src
+
   exposed-modules:
     System.Console.Byline
     System.Console.Byline.Color
@@ -58,40 +86,20 @@ library
     System.Console.Byline.Primitive
     System.Console.Byline.Stylized
 
-  hs-source-dirs: src
-  default-language: Haskell2010
-  ghc-options: -Wall -fwarn-incomplete-uni-patterns
-
-  build-depends: base          >= 4.7  && < 5.0
-               , ansi-terminal >= 0.6  && < 0.10
-               , colour        >= 2.3  && < 2.4
-               , containers    >= 0.5  && < 0.7
-               , exceptions    >= 0.8  && < 0.11
-               , haskeline     >= 0.7  && < 0.8
-               , mtl           >= 2.1  && < 2.3
-               , terminfo-hs   >= 0.1  && < 0.3
-               , text          >= 0.11 && < 1.3
-               , transformers  >= 0.3  && < 0.6
-
-  if !impl(ghc >= 8.0)
-    build-depends: semigroups == 0.18.*
-
 --------------------------------------------------------------------------------
 executable simple
+  import: options, dependencies
   main-is: examples/simple.hs
-  default-language: Haskell2010
-  ghc-options: -Wall -fwarn-incomplete-uni-patterns
-  build-depends: base, byline, text
+  build-depends: byline
 
   if !flag(build-examples)
     buildable: False
 
 --------------------------------------------------------------------------------
 executable menu
+  import: options, dependencies
   main-is: examples/menu.hs
-  default-language: Haskell2010
-  ghc-options: -Wall -fwarn-incomplete-uni-patterns
-  build-depends: base, byline, text
+  build-depends: byline
 
   if !flag(build-examples)
     buildable: False
