@@ -1,5 +1,10 @@
 # Version History
 
+## 1.0.0.0 (Not Yet Released)
+
+  - The `askUntil` function is now polymorphic in its return type.
+    This allows the confirmation function to change the return type.
+
 ## 0.3.2.1 (April 15, 2019)
 
   - Update dependency bounds
