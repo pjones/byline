@@ -1,20 +1,8 @@
-{ pkgs ? (import <nixpkgs> {}).pkgs }:
+{ pkgs ? import <nixpkgs> { }
+}:
 
 let
-  # List any extra packages you want available while your package is
-  # building or while in a nix shell:
-  extraPackages = with pkgs; [ ];
-
-  # Helpful if you want to override any Haskell packages:
+  byline = import ./nix/cabal2nix.nix { inherit pkgs; };
   haskell = pkgs.haskellPackages;
-in
 
-# Load the local nix file and use the overrides from above:
-haskell.callPackage ./byline.nix {
-  mkDerivation = { buildTools ? []
-                 , ...
-                 }@args:
-    haskell.mkDerivation (args // {
-      buildTools = buildTools ++ extraPackages;
-    });
-}
+in haskell.callPackage "${byline}" { }
