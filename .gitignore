@@ -1,3 +1,4 @@
 /.stack-work
 /build/.stack-work
 /dist
+/dist-newstyle/

@@ -12,4 +12,14 @@ let
 in nix-hs {
   cabal = ./byline.cabal;
   flags = [ "build-examples" ];
+
+  overrides = lib: self: super: with lib; {
+    # Fix dependency on old ansi-terminal:
+    test-framework = doJailbreak super.test-framework;
+
+    ansi-terminal =
+      if super ? ansi-terminal_0_10
+        then super.ansi-terminal_0_10
+        else super.ansi-terminal;
+  };
 }
