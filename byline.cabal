@@ -2,7 +2,7 @@ cabal-version: 2.2
 
 --------------------------------------------------------------------------------
 name:          byline
-version:       1.0.0.0
+version:       0.4.0.0
 synopsis:      Library for creating command-line interfaces (colors, menus, etc.)
 homepage:      https://code.devalot.com/open/byline
 bug-reports:   https://code.devalot.com/open/byline/issues

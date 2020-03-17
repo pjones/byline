@@ -110,9 +110,6 @@ module System.Console.Byline
        ) where
 
 --------------------------------------------------------------------------------
-import Data.Monoid ((<>))
-
---------------------------------------------------------------------------------
 import System.Console.Byline.Color
 import System.Console.Byline.Completion
 import System.Console.Byline.Internal.Byline

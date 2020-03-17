@@ -1,9 +1,13 @@
 # Version History
 
-## 1.0.0.0 (Not Yet Released)
+## 0.4.0.0 (March 17, 2020)
 
   - The `askUntil` function is now polymorphic in its return type.
     This allows the confirmation function to change the return type.
+
+  - Removed `Data.Monoid` backwards compatibility for older GHCs.
+
+  - Update dependency bounds
 
 ## 0.3.2.1 (April 15, 2019)
 
