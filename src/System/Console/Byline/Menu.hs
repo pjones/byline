@@ -36,7 +36,6 @@ import Data.IORef
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
-import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Printf (printf)

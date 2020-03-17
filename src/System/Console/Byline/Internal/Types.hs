@@ -21,7 +21,6 @@ module System.Console.Byline.Internal.Types
 
 --------------------------------------------------------------------------------
 -- Library imports:
-import Data.Monoid
 import qualified Data.Semigroup as Semi
 
 --------------------------------------------------------------------------------

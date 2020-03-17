@@ -32,7 +32,6 @@ import Control.Monad.IO.Class
 import qualified Control.Monad.Reader as Reader
 import Data.IORef
 import Data.Maybe
-import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified System.Console.Haskeline as H
@@ -127,8 +126,8 @@ askPassword prompt maskchr = do
 askUntil :: (MonadIO m)
          => Stylized                           -- ^ The prompt.
          -> Maybe Text                         -- ^ Optional default answer.
-         -> (Text -> m (Either Stylized Text)) -- ^ Confirmation function.
-         -> Byline m Text
+         -> (Text -> m (Either Stylized a))    -- ^ Confirmation function.
+         -> Byline m a
 askUntil prompt defans confirm = go where
   go = do
     answer <- ask prompt defans
