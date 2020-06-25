@@ -1,5 +1,22 @@
 # Version History
 
+## 1.0.0.0 (???)
+
+This version is the result of a major refactoring of the code to
+produce an MTL compatible library.
+
+  - New MTL-style class: `MonadByline`
+
+  - Proper monad transformer: `BylineT`
+
+  - Everything is under a single import: `Byline`
+
+  - [ ] MTL instances for `MonadByline` and `BylineT`
+
+  - [ ] Fix completion bug caused by Haskeline not knowing where the
+        prompt is since we write the prompt directly to the output
+        handle.
+
 ## 0.4.0.0 (March 17, 2020)
 
   - The `askUntil` function is now polymorphic in its return type.
