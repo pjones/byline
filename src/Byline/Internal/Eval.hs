@@ -25,6 +25,9 @@ import Byline.Internal.Completion
 import Byline.Internal.Prim (PrimF (..))
 import Byline.Internal.Stylized
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
+import Control.Monad.Cont (ContT, MonadCont)
+import Control.Monad.Except (MonadError)
+import qualified Control.Monad.State.Lazy as LState
 import qualified Control.Monad.Trans.Free.Church as Free
 import qualified System.Console.Haskeline as Haskeline
 import qualified System.Environment as System
@@ -35,8 +38,22 @@ import qualified System.Terminfo.Caps as Terminfo
 -- monad.
 --
 -- @since 1.0.0.0
-class Monad m => MonadByline m where
+class Monad m => MonadByline (m :: * -> *) where
   liftByline :: Free.F PrimF a -> m a
+  default liftByline :: (MonadTrans t, MonadByline m1, m ~ t m1) => Free.F PrimF a -> m a
+  liftByline = lift . liftByline
+
+instance MonadByline m => MonadByline (ExceptT e m)
+
+instance MonadByline m => MonadByline (StateT s m)
+
+instance MonadByline m => MonadByline (LState.StateT s m)
+
+instance MonadByline m => MonadByline (ReaderT r m)
+
+instance MonadByline m => MonadByline (IdentityT m)
+
+instance MonadByline m => MonadByline (ContT r m)
 
 -- | A monad transformer that implements 'MonadByline'.
 --
@@ -48,6 +65,10 @@ newtype BylineT m a = BylineT
       Applicative,
       Monad,
       MonadIO,
+      MonadState s,
+      MonadReader r,
+      MonadError e,
+      MonadCont,
       MonadThrow,
       MonadCatch
     )

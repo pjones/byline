@@ -14,11 +14,10 @@ to produce an MTL-compatible library.
   - The `Report` type and associated functions were superfluous and
     therefore removed.
 
-  - [ ] MTL instances for `MonadByline` and `BylineT`
+  - Fixed a bug where `Stylized Text` was not rendered when using one
+    of the `ask*` functions (#1).
 
-  - [ ] Fix completion bug caused by Haskeline not knowing where the
-        prompt is since we write the prompt directly to the output
-        handle.
+  - [ ] Add a `Settings` type and `runBylineTWith`
 
 ## 0.4.0.0 (March 17, 2020)
 
