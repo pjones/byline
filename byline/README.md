@@ -11,9 +11,9 @@ The primary features of Byline include printing messages, prompting
 for input, and generating custom menus. It was inspired by the
 [highline] Ruby library and the [terminal library][] by Craig Roche.
 
-## Interfaces
+## Examples
 
-  * The MTL interface lives in the `byline` directory.
+Please see the example programs in the `examples` directory.
 
 [ansi-terminal]: http://hackage.haskell.org/package/ansi-terminal
 [haskeline]: https://hackage.haskell.org/package/haskeline

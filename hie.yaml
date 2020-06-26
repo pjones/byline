@@ -1,6 +1,6 @@
 cradle:
   cabal:
-    - path: "./"
+    - path: "./byline/"
       component: "lib:byline"
-    - path: "./test"
+    - path: "./byline/test"
       component: "test:test"
