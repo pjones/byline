@@ -18,6 +18,7 @@ module Main
 where
 
 import Byline
+import Byline.Menu
 
 -- | Menu items that we'll ask the user to choose from.
 data Item

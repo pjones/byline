@@ -96,10 +96,10 @@ library
     Byline.Internal.Color
     Byline.Internal.Completion
     Byline.Internal.Eval
-    Byline.Internal.Menu
     Byline.Internal.Prim
     Byline.Internal.Stylized
     Byline.Internal.Types
+    Byline.Menu
 
 --------------------------------------------------------------------------------
 executable simple

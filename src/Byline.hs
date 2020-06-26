@@ -48,18 +48,6 @@ module Byline
     white,
     rgb,
 
-    -- * Interactive menus
-    Menu,
-    Choice (..),
-    FromChoice,
-    menu,
-    menuBanner,
-    menuPrefix,
-    menuSuffix,
-    menuFromChoiceFunc,
-    askWithMenu,
-    askWithMenuRepeatedly,
-
     -- * Completion
     CompletionFunc,
     pushCompletionFunction,
@@ -70,7 +58,6 @@ where
 import Byline.Internal.Color
 import Byline.Internal.Completion
 import Byline.Internal.Eval (BylineT, MonadByline (..), runBylineT)
-import Byline.Internal.Menu
 import qualified Byline.Internal.Prim as Prim
 import Byline.Internal.Stylized
 import Prelude hiding (ask)

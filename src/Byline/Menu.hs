@@ -12,7 +12,7 @@
 --   terms contained in the LICENSE file.
 --
 -- License: BSD-2-Clause
-module Byline.Internal.Menu
+module Byline.Menu
   ( Menu,
     Choice (..),
     FromChoice,

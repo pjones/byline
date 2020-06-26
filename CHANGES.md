@@ -2,14 +2,17 @@
 
 ## 1.0.0.0 (???)
 
-This version is the result of a major refactoring of the code to
-produce an MTL compatible library.
+This version is the result of a major refactoring of the code in order
+to produce an MTL-compatible library.
 
   - New MTL-style class: `MonadByline`
 
   - Proper monad transformer: `BylineT`
 
   - Everything is under a single import: `Byline`
+
+  - The `Report` type and associated functions were superfluous and
+    therefore removed.
 
   - [ ] MTL instances for `MonadByline` and `BylineT`
 
