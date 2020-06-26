@@ -72,14 +72,14 @@ common options
 --------------------------------------------------------------------------------
 common dependencies
   build-depends:
-    , ansi-terminal  >=0.6  && <0.12
+    , ansi-terminal  >=0.6  && <0.11
     , base           >=4.9  && <5.0
     , colour         ^>=2.3
     , exceptions     >=0.8  && <0.11
     , free           ^>=5.1
     , haskeline      ^>=0.8
     , mtl            >=2.1  && <2.3
-    , relude         ^>=0.6
+    , relude         >=0.6  && <0.8
     , terminfo-hs    >=0.1  && <0.3
     , text           >=0.11 && <1.3
 
