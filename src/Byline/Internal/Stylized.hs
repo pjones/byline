@@ -135,8 +135,7 @@ data RenderInstruction
   = RenderText Text
   | RenderSGR [ANSI.SGR]
 
--- | Send stylized text to the given handle.  This works on Windows
--- thanks to the @ansi-terminal@ package.
+-- | Send stylized text to the given handle.
 --
 -- @since 1.0.0.0
 render :: RenderMode -> Handle -> Stylized Text -> IO ()
@@ -148,9 +147,7 @@ render mode h stylized = mapM_ go (renderInstructions mode stylized)
 
 -- | Render all modifiers as escape characters and return the
 -- resulting text.  On most terminals, sending this text to stdout
--- will correctly render the modifiers.  However, this won't work on
--- Windows consoles so you'll want to send 'Plain' as the
--- 'RenderMode'.
+-- will correctly render the modifiers.
 --
 -- @since 1.0.0.0
 renderText :: RenderMode -> Stylized Text -> Text
@@ -158,33 +155,27 @@ renderText mode stylized = foldMap go (renderInstructions mode stylized)
   where
     go :: RenderInstruction -> Text
     go (RenderText t) = t
-    go (RenderSGR _) = mempty
+    go (RenderSGR s) = toText (ANSI.setSGRCode s)
 
 -- | Internal function to turn stylized text into render instructions.
 --
 -- @since 1.0.0.0
 renderInstructions :: RenderMode -> Stylized Text -> [RenderInstruction]
 renderInstructions mode = \case
-  Stylized m t -> renderMod (t, m)
+  Stylized m t -> renderMod mode (t, m)
   StylizedMod _ -> []
   StylizedList xs -> concatMap (renderInstructions mode) xs
   where
-    renderMod :: (Text, Modifier) -> [RenderInstruction]
-    renderMod (t, m) =
+    renderMod :: RenderMode -> (Text, Modifier) -> [RenderInstruction]
+    renderMod mode (t, m) =
       case mode of
         -- Only rendering text.
-        Plain -> [RenderText t]
-        -- Render text with modifiers.  The only difference between
-        -- 'Simple' and 'Term256' is handled by 'modToText'.
-        Simple -> modToList (t, m)
-        Term256 -> modToList (t, m)
-    modToList :: (Text, Modifier) -> [RenderInstruction]
-    modToList (t, m) =
-      [ RenderSGR (modToSGR m),
-        RenderText (modToText mode m),
-        RenderText t,
-        RenderSGR [ANSI.Reset]
-      ]
+        Plain ->
+          [RenderText t]
+        Simple ->
+          [RenderSGR (modToSGR m), RenderText t, RenderSGR [ANSI.Reset]]
+        Term256 ->
+          RenderText (term256ModToEsc m) : renderMod Simple (t, m)
 
 -- | Convert a modifier into a series of ANSI.SGR codes.
 --
@@ -220,10 +211,8 @@ modToSGR m =
 -- See: <http://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
 --
 -- @since 1.0.0.0
-modToText :: RenderMode -> Modifier -> Text
-modToText Plain _ = mempty
-modToText Simple _ = mempty
-modToText Term256 m =
+term256ModToEsc :: Modifier -> Text
+term256ModToEsc m =
   mconcat $
     catMaybes
       [ escape ANSI.Foreground <$> modColor modColorFG,

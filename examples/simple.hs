@@ -25,11 +25,13 @@ import Byline
     blue,
     bold,
     fg,
+    green,
     red,
     rgb,
     runBylineT,
     sayLn,
     text,
+    underline,
   )
 import qualified Data.Text as Text
 
@@ -51,7 +53,8 @@ main = void $ runBylineT Nothing $ do
 
   -- Keep prompting until a confirmation function indicates that the
   -- user's input is sufficient:
-  name <- askUntil "What's your name? " Nothing (pure . atLeastThreeChars)
+  let question = "What's your " <> ("name" <> fg green <> underline) <> "? "
+  name <- askUntil question Nothing (pure . atLeastThreeChars)
   sayLn $ "Hey there " <> text name <> fg (rgb 108 113 196)
 
 -- | Example confirmation function that requires the input to be three

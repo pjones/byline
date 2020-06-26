@@ -131,21 +131,22 @@ evalPrimF renderMode outputHandle compRef = Free.iterTM go
       Say s k ->
         liftIO (render renderMode outputHandle s) >> k
       AskLn s d k -> do
-        let prompt = maybe s (\d' -> s <> text "[" <> text d' <> "] ") d
-        liftIO (render renderMode outputHandle prompt)
-        liftHaskeline (Haskeline.getInputLine mempty) >>= \case
+        let prompt =
+              renderText renderMode $
+                maybe s (\d' -> s <> text "[" <> text d' <> "] ") d
+        liftHaskeline (Haskeline.getInputLine (toString prompt)) >>= \case
           Nothing -> EvalT empty
           Just answer
             | null answer -> k (fromMaybe mempty d)
             | otherwise -> k (toText answer)
       AskChar s k -> do
-        liftIO (render renderMode outputHandle s)
-        liftHaskeline (Haskeline.getInputChar mempty) >>= \case
+        let prompt = toString (renderText renderMode s)
+        liftHaskeline (Haskeline.getInputChar prompt) >>= \case
           Nothing -> EvalT empty
           Just c -> k c
       AskPassword s m k -> do
-        liftIO (render renderMode outputHandle s)
-        liftHaskeline (Haskeline.getPassword m mempty) >>= \case
+        let prompt = toString (renderText renderMode s)
+        liftHaskeline (Haskeline.getPassword m prompt) >>= \case
           Nothing -> EvalT empty
           Just str -> k (toText str)
       PushCompFunc f k ->
