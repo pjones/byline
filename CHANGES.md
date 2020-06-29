@@ -9,10 +9,14 @@ to produce an MTL-compatible library.
 
   - Proper monad transformer: `BylineT`
 
-  - Everything is under a single import: `Byline`
+  - Most of the library is under a single import: `Byline`
 
   - The `Report` type and associated functions were superfluous and
     therefore removed.
+
+  - Menus now use `NonEmpty` to represent items and therefore the menu
+    `Choice` type has been simplified, removing the `NoItems`
+    constructor.
 
   - Fixed a bug where `Stylized Text` was not rendered when using one
     of the `ask*` functions (#1).

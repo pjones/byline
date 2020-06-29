@@ -34,7 +34,7 @@ import Byline.Internal.Types (Modifier (..), OnlyOne (..), Status (..))
 import qualified Data.Text.IO as Text
 import qualified System.Console.ANSI as ANSI
 
--- | Stylized text.  Construct text with modifiers using string
+-- | A stylized value.  Construct text with modifiers using string
 -- literals and the @OverloadedStrings@ extension and/or the 'text'
 -- function.
 --

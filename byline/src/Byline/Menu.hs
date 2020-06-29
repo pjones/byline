@@ -13,16 +13,22 @@
 --
 -- License: BSD-2-Clause
 module Byline.Menu
-  ( Menu,
-    Choice (..),
-    FromChoice,
+  ( -- * Menus with tab completion
+    -- $usage
+
+    -- * Building a menu
+    Menu,
     menu,
     menuBanner,
     menuPrefix,
     menuSuffix,
+    FromChoice,
     menuFromChoiceFunc,
+
+    -- * Prompting with a menu
     askWithMenu,
     askWithMenuRepeatedly,
+    Choice (..),
   )
 where
 
@@ -39,7 +45,7 @@ import Text.Printf (printf)
 -- @since 1.0.0.0
 data Menu a = Menu
   { -- | Menu items.
-    _menuItems :: [a],
+    _menuItems :: NonEmpty a,
     -- | Banner printed before menu.
     _menuBanner :: Maybe (Stylized Text),
     -- | Stylize a menu item.
@@ -54,18 +60,22 @@ data Menu a = Menu
     _menuItemFromChoiceFunc :: FromChoice a
   }
 
+instance Foldable Menu where
+  foldMap f Menu {..} = foldMap f _menuItems
+  toList Menu {..} = toList _menuItems
+  null _ = False
+  length Menu {..} = length _menuItems
+
 -- | A type representing the choice made by a user while working with
 -- a menu.
 --
 -- @since 1.0.0.0
 data Choice a
-  = -- | Menu has no items to choose from.
-    NoItems
-  | -- | User picked a menu item.
+  = -- | User picked a menu item.
     Match a
   | -- | User entered text that doesn't match an item.
     Other Text
-  deriving (Show)
+  deriving (Show, Eq, Functor, Foldable, Traversable)
 
 -- | A function that is given the input from a user while working in a
 -- menu and should translate that into a 'Choice'.
@@ -73,10 +83,10 @@ data Choice a
 -- The @Map@ contains the menu item indexes/prefixes (numbers or
 -- letters) and the items themselves.
 --
--- The default matcher function allows the user to select a menu item
--- by typing its index or part of its textual representation.  As long
--- as input from the user is a unique prefix of one of the menu items
--- then that item will be returned.
+-- The default 'FromChoice' function allows the user to select a menu
+-- item by typing its index or part of its textual representation.  As
+-- long as input from the user is a unique prefix of one of the menu
+-- items then that item will be returned.
 --
 -- @since 1.0.0.0
 type FromChoice a = Menu a -> Map Text a -> Text -> Choice a
@@ -93,7 +103,8 @@ numbered = text . Text.pack . printf "%2d"
 --
 -- @since 1.0.0.0
 matchOnPrefix :: Menu a -> Text -> [a]
-matchOnPrefix config input = filter prefixCheck (_menuItems config)
+matchOnPrefix config input =
+  filter prefixCheck (toList $ _menuItems config)
   where
     asText i = renderText Plain (_menuDisplay config i)
     prefixCheck i = input `Text.isPrefixOf` asText i
@@ -123,12 +134,13 @@ defaultFromChoice config prefixes input =
 --
 -- @since 1.0.0.0
 defaultCompFunc :: Menu a -> CompletionFunc IO
-defaultCompFunc config (left, _) = pure ("", completions matches)
+defaultCompFunc config (left, _) =
+  pure ("", completions matches)
   where
     -- All matching menu items.
     matches =
       if Text.null left
-        then _menuItems config
+        then toList (_menuItems config)
         else matchOnPrefix config left
     -- Convert a menu item to a String.
     asText i = renderText Plain (_menuDisplay config i)
@@ -139,7 +151,7 @@ defaultCompFunc config (left, _) = pure ("", completions matches)
 -- that can convert those items into stylized text.
 --
 -- @since 1.0.0.0
-menu :: [a] -> (a -> Stylized Text) -> Menu a
+menu :: NonEmpty a -> (a -> Stylized Text) -> Menu a
 menu items displayF =
   Menu
     { _menuItems = items,
@@ -199,12 +211,10 @@ askWithMenu ::
   Stylized Text ->
   -- | The 'Choice' the user selected.
   m (Choice a)
-askWithMenu m prompt
-  | null (_menuItems m) = pure NoItems
-  | otherwise =
-    liftByline (pushCompFunc (defaultCompFunc m))
-      *> go
-      <* liftByline popCompFunc
+askWithMenu m prompt =
+  liftByline (pushCompFunc (defaultCompFunc m))
+    *> go
+    <* liftByline popCompFunc
   where
     go = do
       prefixes <- displayMenu
@@ -215,7 +225,7 @@ askWithMenu m prompt
     -- Print the entire menu.
     displayMenu = do
       maybe pass ((<> "\n") >>> sayLn >>> liftByline) (_menuBanner m)
-      cache <- foldlM listItem mempty (zip [1 ..] (_menuItems m))
+      cache <- foldlM listItem mempty (zip [1 ..] (toList $ _menuItems m))
       liftByline (sayLn (maybe mempty ("\n" <>) (_menuBeforePrompt m)))
       pure cache
     -- Print a menu item and cache its prefix in a Map.
@@ -245,11 +255,20 @@ askWithMenuRepeatedly ::
   -- | Error message when the user tried to select a non-menu item.
   Stylized Text ->
   -- | The 'Choice' the user selected.
-  m (Choice a)
+  m a
 askWithMenuRepeatedly m prompt errprompt = go m
   where
     go config = do
       answer <- askWithMenu config prompt
       case answer of
         Other _ -> go (config {_menuBeforePrompt = Just errprompt})
-        _ -> pure answer
+        Match x -> pure x
+
+-- $usage
+--
+-- Menus are used to provide the user with a choice of acceptable
+-- values.  Each choice is labeled to make it easier for a user to
+-- select it, or the user may enter text that does not correspond to
+-- any of the menus items.
+--
+-- For an example see the @menu.hs@ file in the @examples@ directory.

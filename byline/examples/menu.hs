@@ -19,6 +19,7 @@ where
 
 import Byline
 import Byline.Menu
+import qualified Data.List.NonEmpty as NonEmpty
 
 -- | Menu items that we'll ask the user to choose from.
 data Item
@@ -32,13 +33,14 @@ displayItem (Fruit name) = text name <> (" (fruit)" <> fg red)
 displayItem (Vegetable name) = text name <> (" (vegetable)" <> fg green)
 
 -- | The list of menu items.
-items :: [Item]
+items :: NonEmpty Item
 items =
-  [ Fruit "Watermelon",
-    Vegetable "Cucumber",
-    Fruit "Kiwi",
-    Vegetable "Asparagus"
-  ]
+  NonEmpty.fromList
+    [ Fruit "Watermelon",
+      Vegetable "Cucumber",
+      Fruit "Kiwi",
+      Vegetable "Asparagus"
+    ]
 
 -- | It's main!
 main :: IO ()

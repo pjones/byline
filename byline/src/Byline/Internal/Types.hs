@@ -27,8 +27,9 @@ import qualified System.Console.ANSI as ANSI
 -- | Opaque type for representing a color.
 --
 -- A color can be one of the eight standard terminal colors
--- constructed with one of the named color functions (e.g., 'black',
--- 'red', etc.) or using the 'rgb' function.
+-- constructed with one of the named color functions (e.g.,
+-- 'Byline.black', 'Byline.red', etc.) or using the 'Byline.rgb'
+-- function.
 --
 -- @since 1.0.0.0
 data Color

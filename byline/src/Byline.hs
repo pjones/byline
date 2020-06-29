@@ -15,6 +15,8 @@
 module Byline
   ( -- * How to use this library
     -- $use
+
+    -- * Byline class and transformer
     MonadByline,
     BylineT,
     runBylineT,
@@ -64,6 +66,8 @@ import Prelude hiding (ask)
 
 -- | Output the given stylized text.
 --
+-- See also: 'sayLn'.
+--
 -- @since 1.0.0.0
 say ::
   MonadByline m =>
@@ -91,7 +95,7 @@ askLn ::
   MonadByline m =>
   -- | The prompt.
   Stylized Text ->
-  -- | Default answer.
+  -- | The text to return if the user does not enter a response.
   Maybe Text ->
   -- | User input (or default answer).
   m Text
@@ -116,8 +120,9 @@ askPassword ::
   -- | The prompt to display.
   Stylized Text ->
   -- | Optional masking character that will be printed each time the
-  -- user presses a key.  When 'Nothing' use the default masking
-  -- character.
+  -- user presses a key.  When 'Nothing' is given the default behavior
+  -- will be used which is system dependent but usually results in no
+  -- characters being echoed to the terminal.
   Maybe Char ->
   m Text
 askPassword prompt = Prim.askPassword prompt >>> liftByline
@@ -170,8 +175,7 @@ popCompletionFunction = liftByline Prim.popCompFunc
 -- Stylized text can be constructed with string literals
 -- (using the @OverloadedStrings@ extension) or using the
 -- 'text' function.  Attributes such as color can be changed
--- using modifier functions and the @mappend@ operator,
--- @(<>)@.
+-- using modifier functions and the 'Semigroup' @(<>)@ operator.
 --
 -- Actions that read user input can work with completion
 -- functions which are activated when the user presses the
@@ -182,17 +186,18 @@ popCompletionFunction = liftByline Prim.popCompFunc
 -- Example:
 --
 -- @
---     {-\# LANGUAGE OverloadedStrings \#-}
+-- {-\# LANGUAGE OverloadedStrings \#-}
 --
---     ...
 --
---     language <- runBylineT $ do
---         sayLn ("Look mom, " <> ("colors" <> fg blue) <> "!")
+-- main = do
+--   language <- 'runBylineT' $ do
+--     'sayLn' ("Look mom, " <> ("colors" <> 'fg' 'blue') <> "!")
 --
---         let question = "What's your favorite " <>
---                        ("language" <> bold)    <> "? "
+--     let question = "What's your favorite " <>
+--                    ("language" <> 'bold') <> "? "
 --
---         ask question Nothing
+--     'askLn' question Nothing
+--  print language
 -- @
 --
 -- More complete examples can be found in the @examples@

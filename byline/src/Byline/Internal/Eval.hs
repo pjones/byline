@@ -87,6 +87,10 @@ type CompRef m = IORef [CompletionFunc m]
 -- | Discharge the 'MonadByline' effect by running all operations and
 -- returning the result in the base monad.
 --
+-- The result is wrapped in a 'Maybe' where a 'Nothing' value
+-- indicates that an end-of-file (EOF) signal was received while
+-- reading user input.
+--
 -- @since 1.0.0.0
 runBylineT ::
   forall m a.
