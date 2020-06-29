@@ -15,7 +15,12 @@ jobs:
       - uses: actions/setup-haskell@v1.1
         with:
           ghc-version: ${{ matrix.ghc }}
-      - run: cabal build all --verbose=3 -fbuild-examples
+      - run: cabal build all '--build-log=logs/$pkgid' -fbuild-examples
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: logs-${{ matrix.os }}-ghc${{ matrix.ghc }}
+          path: logs/
       - run: cabal install byline -fbuild-examples --installdir=artifacts --install-method=copy
       - uses: actions/upload-artifact@v2
         with:
