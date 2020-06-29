@@ -53,7 +53,7 @@ main = do
   -- user will be able to select an item using it's index, name, or
   -- using tab completion.
   answer <-
-    runBylineT Nothing $
+    runBylineT $
       askWithMenuRepeatedly menuConfig prompt onError
 
   putStrLn ("You picked: " ++ show answer)

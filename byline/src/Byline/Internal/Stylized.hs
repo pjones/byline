@@ -146,8 +146,8 @@ render mode h stylized = mapM_ go (renderInstructions mode stylized)
     go (RenderSGR s) = ANSI.hSetSGR h s
 
 -- | Render all modifiers as escape characters and return the
--- resulting text.  On most terminals, sending this text to stdout
--- will correctly render the modifiers.
+-- resulting text.  The text produced from this function is formatted
+-- for output by Haskeline.
 --
 -- @since 1.0.0.0
 renderText :: RenderMode -> Stylized Text -> Text
@@ -155,7 +155,11 @@ renderText mode stylized = foldMap go (renderInstructions mode stylized)
   where
     go :: RenderInstruction -> Text
     go (RenderText t) = t
-    go (RenderSGR s) = toText (ANSI.setSGRCode s)
+    go (RenderSGR s) =
+      -- *NOTE:* The \STX character below is not a real terminal
+      -- escape character.  Instead it is intercepted by Haskeline.
+      -- See: https://github.com/judah/haskeline/wiki/ControlSequencesInPrompt
+      toText (ANSI.setSGRCode s) <> "\STX"
 
 -- | Internal function to turn stylized text into render instructions.
 --

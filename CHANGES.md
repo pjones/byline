@@ -21,7 +21,8 @@ to produce an MTL-compatible library.
   - Fixed a bug where `Stylized Text` was not rendered when using one
     of the `ask*` functions (#1).
 
-  - [ ] Add a `Settings` type and `runBylineTWith`
+  - Proper encoding of escape sequences so Haskeline doesn't
+    [print garbage](https://github.com/judah/haskeline/issues/130) on Windows.
 
 ## 0.4.0.0 (March 17, 2020)
 

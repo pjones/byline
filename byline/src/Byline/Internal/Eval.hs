@@ -93,12 +93,27 @@ type CompRef m = IORef [CompletionFunc m]
 --
 -- @since 1.0.0.0
 runBylineT ::
+  (MonadIO m, MonadMask m) =>
+  BylineT m a ->
+  m (Maybe a)
+runBylineT = runBylineT' Nothing
+
+-- | Like 'runBylineT' except that you can override the input and
+-- output file handles.  Note that while Byline will respect the
+-- output file handle, Haskeline will not and will always use standard
+-- output.
+--
+-- *NOTE:* This function is not exported due to the fact that
+-- Haskeline has no way to set the output handle.
+--
+-- @since 1.0.0.0
+runBylineT' ::
   forall m a.
   (MonadIO m, MonadMask m) =>
   Maybe (Handle, Handle) ->
   BylineT m a ->
   m (Maybe a)
-runBylineT handles m = do
+runBylineT' handles m = do
   compRef <- newIORef []
   let settings =
         Haskeline.setComplete

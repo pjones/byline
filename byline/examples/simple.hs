@@ -36,7 +36,7 @@ import Byline
 import qualified Data.Text as Text
 
 main :: IO ()
-main = void $ runBylineT Nothing $ do
+main = void $ runBylineT $ do
   -- Simple message to stdout:
   sayLn "Okay, let's kick this off"
 
