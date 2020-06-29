@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-haskell@v1.1
         with:
           ghc-version: ${{ matrix.ghc }}
-      - run: cabal build all -fbuild-examples
+      - run: cabal build all --verbose=3 -fbuild-examples
       - run: cabal install byline -fbuild-examples --installdir=artifacts --install-method=copy
       - uses: actions/upload-artifact@v2
         with:
