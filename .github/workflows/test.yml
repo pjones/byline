@@ -10,6 +10,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         ghc: ["8.6.5", "8.8.3", "8.10.1"]
+        # Newer versions of GHC are broken on Windows:
+        # https://gitlab.haskell.org/ghc/ghc/-/issues/17926
+        exclude:
+          - os: windows-latest
+            ghc: "8.8.3"
+          - os: windows-latest
+            ghc: "8.10.1"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-haskell@v1.1
