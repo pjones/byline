@@ -16,6 +16,7 @@
 -- License: BSD-2-Clause
 module Byline.Internal.Stylized
   ( Stylized (..),
+    ToStylizedText (..),
     text,
     fg,
     bg,
@@ -71,6 +72,14 @@ instance Monoid (Stylized a) where
 instance IsString (Stylized Text) where
   fromString = text . toText
 
+-- | A class for types that can be converted to 'Stylized' text.
+class ToStylizedText a where
+  toStylizedText :: a -> Stylized Text
+
+-- | @since 1.0.0.0
+instance ToStylizedText (Stylized Text) where
+  toStylizedText = id
+
 -- | Helper function to create stylized text.  If you enable the
 -- @OverloadedStrings@ extension then you can create stylized text
 -- directly without using this function.
@@ -89,31 +98,31 @@ text = Stylized mempty
 -- @
 --
 -- @since 1.0.0.0
-fg :: Color -> Stylized a
+fg :: Color -> Stylized Text
 fg c = StylizedMod (mempty {modColorFG = OnlyOne (Just c)})
 
 -- | Set the background color.
 --
 -- @since 1.0.0.0
-bg :: Color -> Stylized a
+bg :: Color -> Stylized Text
 bg c = StylizedMod (mempty {modColorBG = OnlyOne (Just c)})
 
 -- | Produce bold text.
 --
 -- @since 1.0.0.0
-bold :: Stylized a
+bold :: Stylized Text
 bold = StylizedMod (mempty {modBold = On})
 
 -- | Produce underlined text.
 --
 -- @since 1.0.0.0
-underline :: Stylized a
+underline :: Stylized Text
 underline = StylizedMod (mempty {modUnderline = On})
 
 -- | Produce swapped foreground/background text.
 --
 -- @since 1.0.0.0
-swapFgBg :: Stylized a
+swapFgBg :: Stylized Text
 swapFgBg = StylizedMod (mempty {modSwapFgBg = On})
 
 -- | How to render stylized text.

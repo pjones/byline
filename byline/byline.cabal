@@ -93,6 +93,7 @@ library
   hs-source-dirs:  src
   exposed-modules:
     Byline
+    Byline.Exit
     Byline.Internal.Color
     Byline.Internal.Completion
     Byline.Internal.Eval

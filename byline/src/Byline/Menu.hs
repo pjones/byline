@@ -29,13 +29,14 @@ module Byline.Menu
     askWithMenu,
     askWithMenuRepeatedly,
     Choice (..),
+
+    -- * Re-exports
+    module Byline,
   )
 where
 
-import Byline.Internal.Completion
-import Byline.Internal.Eval (MonadByline (..))
-import Byline.Internal.Prim (askLn, popCompFunc, pushCompFunc, sayLn)
-import Byline.Internal.Stylized
+import Byline
+import Byline.Internal.Stylized (RenderMode (..), renderText)
 import qualified Data.Text as Text
 import Relude.Extra.Map
 import Text.Printf (printf)
@@ -48,8 +49,6 @@ data Menu a = Menu
     _menuItems :: NonEmpty a,
     -- | Banner printed before menu.
     _menuBanner :: Maybe (Stylized Text),
-    -- | Stylize a menu item.
-    _menuDisplay :: a -> Stylized Text,
     -- | Stylize an item's index.
     _menuItemPrefix :: Int -> Stylized Text,
     -- | Printed after an item's index.
@@ -102,11 +101,11 @@ numbered = text . Text.pack . printf "%2d"
 -- given user input.
 --
 -- @since 1.0.0.0
-matchOnPrefix :: Menu a -> Text -> [a]
+matchOnPrefix :: ToStylizedText a => Menu a -> Text -> [a]
 matchOnPrefix config input =
   filter prefixCheck (toList $ _menuItems config)
   where
-    asText i = renderText Plain (_menuDisplay config i)
+    asText i = renderText Plain (toStylizedText i)
     prefixCheck i = input `Text.isPrefixOf` asText i
 
 -- | Default 'FromChoice' function.  Checks to see if the user has input
@@ -115,7 +114,7 @@ matchOnPrefix config input =
 -- internal @numbered@ function).
 --
 -- @since 1.0.0.0
-defaultFromChoice :: forall a. FromChoice a
+defaultFromChoice :: forall a. ToStylizedText a => FromChoice a
 defaultFromChoice config prefixes input =
   case uniquePrefix <|> lookup cleanInput prefixes of
     Nothing -> Other input
@@ -133,7 +132,7 @@ defaultFromChoice config prefixes input =
 -- | Default completion function.  Matches all of the menu items.
 --
 -- @since 1.0.0.0
-defaultCompFunc :: Menu a -> CompletionFunc IO
+defaultCompFunc :: ToStylizedText a => Menu a -> CompletionFunc IO
 defaultCompFunc config (left, _) =
   pure ("", completions matches)
   where
@@ -143,7 +142,7 @@ defaultCompFunc config (left, _) =
         then toList (_menuItems config)
         else matchOnPrefix config left
     -- Convert a menu item to a String.
-    asText i = renderText Plain (_menuDisplay config i)
+    asText i = renderText Plain (toStylizedText i)
     -- Convert menu items into Completion values.
     completions = map (\i -> Completion (asText i) (asText i) True)
 
@@ -151,12 +150,11 @@ defaultCompFunc config (left, _) =
 -- that can convert those items into stylized text.
 --
 -- @since 1.0.0.0
-menu :: NonEmpty a -> (a -> Stylized Text) -> Menu a
-menu items displayF =
+menu :: ToStylizedText a => NonEmpty a -> Menu a
+menu items =
   Menu
     { _menuItems = items,
       _menuBanner = Nothing,
-      _menuDisplay = displayF,
       _menuItemPrefix = numbered,
       _menuItemSuffix = text ") ",
       _menuBeforePrompt = Nothing,
@@ -167,8 +165,8 @@ menu items displayF =
 -- the menu items are displayed.
 --
 -- @since 1.0.0.0
-menuBanner :: Stylized Text -> Menu a -> Menu a
-menuBanner b m = m {_menuBanner = Just b}
+menuBanner :: ToStylizedText b => b -> Menu a -> Menu a
+menuBanner b m = m {_menuBanner = Just (toStylizedText b)}
 
 -- | Change the prefix function.  The prefix function should generate
 -- unique, stylized text that the user can use to select a menu item.
@@ -204,40 +202,40 @@ menuFromChoiceFunc f m = m {_menuItemFromChoiceFunc = f}
 --
 -- @since 1.0.0.0
 askWithMenu ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a, ToStylizedText b) =>
   -- | The 'Menu' to display.
   Menu a ->
   -- | The prompt.
-  Stylized Text ->
+  b ->
   -- | The 'Choice' the user selected.
   m (Choice a)
 askWithMenu m prompt =
-  liftByline (pushCompFunc (defaultCompFunc m))
+  pushCompletionFunction (defaultCompFunc m)
     *> go
-    <* liftByline popCompFunc
+    <* popCompletionFunction
   where
     go = do
       prefixes <- displayMenu
-      answer <- liftByline (askLn prompt (Just firstItem))
+      answer <- askLn prompt (Just firstItem)
       pure (_menuItemFromChoiceFunc m m prefixes answer)
     -- The default menu item.
     firstItem = Text.strip (renderText Plain (_menuItemPrefix m 1))
     -- Print the entire menu.
     displayMenu = do
-      maybe pass ((<> "\n") >>> sayLn >>> liftByline) (_menuBanner m)
+      maybe pass ((<> "\n") >>> sayLn) (_menuBanner m)
       cache <- foldlM listItem mempty (zip [1 ..] (toList $ _menuItems m))
-      liftByline (sayLn (maybe mempty ("\n" <>) (_menuBeforePrompt m)))
+      sayLn (maybe mempty ("\n" <>) (_menuBeforePrompt m))
       pure cache
     -- Print a menu item and cache its prefix in a Map.
     listItem cache (index, item) = do
       let bullet = _menuItemPrefix m index
           rendered = renderText Plain bullet
-      liftByline $ sayLn $
+      sayLn $
         mconcat
           [ text "  ", -- Indent.
             bullet, -- Unique identifier.
             _menuItemSuffix m, -- Spacer or marker.
-            _menuDisplay m item -- The item.
+            toStylizedText item -- The item.
           ]
       pure (one (Text.strip rendered, item) <> cache)
 
@@ -247,13 +245,13 @@ askWithMenu m prompt =
 --
 -- @since 1.0.0.0
 askWithMenuRepeatedly ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a, ToStylizedText b, ToStylizedText e) =>
   -- | The 'Menu' to display.
   Menu a ->
   -- | The prompt.
-  Stylized Text ->
+  b ->
   -- | Error message when the user tried to select a non-menu item.
-  Stylized Text ->
+  e ->
   -- | The 'Choice' the user selected.
   m a
 askWithMenuRepeatedly m prompt errprompt = go m
@@ -261,7 +259,7 @@ askWithMenuRepeatedly m prompt errprompt = go m
     go config = do
       answer <- askWithMenu config prompt
       case answer of
-        Other _ -> go (config {_menuBeforePrompt = Just errprompt})
+        Other _ -> go (config {_menuBeforePrompt = Just (toStylizedText errprompt)})
         Match x -> pure x
 
 -- $usage

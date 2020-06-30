@@ -11,6 +11,13 @@ to produce an MTL-compatible library.
 
   - Most of the library is under a single import: `Byline`
 
+  - Added a `ToStylizedText` class to enable using custom types with
+    functions like `menu`.
+
+  - New `Byline.Exit.die` function to exit the current process with a
+    stylized error message.  Thanks to the `ToStylizedText` class it's
+    easy to exit with custom error types.
+
   - The `Report` type and associated functions were superfluous and
     therefore removed.
 

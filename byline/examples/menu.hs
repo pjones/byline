@@ -17,7 +17,6 @@ module Main
   )
 where
 
-import Byline
 import Byline.Menu
 import qualified Data.List.NonEmpty as NonEmpty
 
@@ -28,9 +27,10 @@ data Item
   deriving (Show)
 
 -- | How to display a menu item.
-displayItem :: Item -> Stylized Text
-displayItem (Fruit name) = text name <> (" (fruit)" <> fg red)
-displayItem (Vegetable name) = text name <> (" (vegetable)" <> fg green)
+instance ToStylizedText Item where
+  toStylizedText item = case item of
+    Fruit name -> text name <> (" (fruit)" <> fg red)
+    Vegetable name -> text name <> (" (vegetable)" <> fg green)
 
 -- | The list of menu items.
 items :: NonEmpty Item
@@ -45,8 +45,10 @@ items =
 -- | It's main!
 main :: IO ()
 main = do
-  let menuConfig = menuBanner "Pick a snack: " $ menu items displayItem
-      prompt = "Which snack? "
+  let menuConfig =
+        menuBanner ("Pick a snack: " <> bold) $
+          menu items
+      prompt = "Which snack? " <> bold <> fg yellow
       onError = "Please pick a valid item!" <> fg red
 
   -- Display the menu and get back the item the user selected.  The

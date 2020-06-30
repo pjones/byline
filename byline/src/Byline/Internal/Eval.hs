@@ -18,6 +18,10 @@ module Byline.Internal.Eval
   ( MonadByline (..),
     BylineT,
     runBylineT,
+    Settings (..),
+    defaultBylineSettings,
+    runBylineT',
+    defaultRenderMode,
   )
 where
 
@@ -29,6 +33,7 @@ import Control.Monad.Cont (ContT, MonadCont)
 import Control.Monad.Except (MonadError)
 import qualified Control.Monad.State.Lazy as LState
 import qualified Control.Monad.Trans.Free.Church as Free
+import qualified System.Console.ANSI as ANSI
 import qualified System.Console.Haskeline as Haskeline
 import qualified System.Environment as System
 import qualified System.Terminfo as Terminfo
@@ -96,33 +101,55 @@ runBylineT ::
   (MonadIO m, MonadMask m) =>
   BylineT m a ->
   m (Maybe a)
-runBylineT = runBylineT' Nothing
+runBylineT = runBylineT' defaultBylineSettings
 
--- | Like 'runBylineT' except that you can override the input and
--- output file handles.  Note that while Byline will respect the
--- output file handle, Haskeline will not and will always use standard
--- output.
+-- | Settings that control Byline at run time.
 --
--- *NOTE:* This function is not exported due to the fact that
--- Haskeline has no way to set the output handle.
+-- @since 1.0.0.0
+data Settings = Settings
+  { -- | The output handle to write to.  If 'Nothing' use standard
+    -- output.
+    --
+    -- NOTE: This only affects Byline (i.e. functions that use
+    -- @say@).  Functions like @ask@ that invoke Haskeline will always
+    -- use standard output since that's the hard-coded default.
+    bylineOutput :: Maybe Handle,
+    -- | The input handle to read from.  If 'Nothing' use standard
+    -- input.
+    bylineInput :: Maybe Handle,
+    -- | Override the detected render mode.
+    --
+    -- If 'Nothing' use the render mode that is calculated based on
+    -- the type of handle Byline writes to.
+    bylineMode :: Maybe RenderMode
+  }
+
+-- | The default Byline settings.
+--
+-- @since 1.0.0.0
+defaultBylineSettings :: Settings
+defaultBylineSettings = Settings Nothing Nothing Nothing
+
+-- | Like 'runBylineT' except you can override the settings.
 --
 -- @since 1.0.0.0
 runBylineT' ::
   forall m a.
   (MonadIO m, MonadMask m) =>
-  Maybe (Handle, Handle) ->
+  Settings ->
   BylineT m a ->
   m (Maybe a)
-runBylineT' handles m = do
+runBylineT' Settings {..} m = do
   compRef <- newIORef []
   let settings =
         Haskeline.setComplete
           (compFunc compRef)
           Haskeline.defaultSettings
-  let (behavior, outh) = case handles of
-        Nothing -> (Haskeline.defaultBehavior, Nothing)
-        Just (inh, outh) -> (Haskeline.useFileHandle inh, Just outh)
-  Haskeline.runInputTBehavior behavior settings (go compRef outh)
+  let behavior = case bylineInput of
+        Nothing -> Haskeline.defaultBehavior
+        Just hIn -> Haskeline.useFileHandle hIn
+  let hOut = fromMaybe stdout bylineOutput
+  Haskeline.runInputTBehavior behavior settings (go compRef hOut)
   where
     compFunc :: CompRef IO -> Haskeline.CompletionFunc m
     compFunc compRef input = liftIO $
@@ -131,12 +158,12 @@ runBylineT' handles m = do
         fs -> runCompletionFunctions fs input
     go ::
       CompRef IO ->
-      Maybe Handle ->
+      Handle ->
       Haskeline.InputT m (Maybe a)
-    go compRef outh = do
-      mode <- defaultRenderMode
+    go compRef hOut = do
+      mode <- maybe (liftIO (defaultRenderMode hOut)) pure bylineMode
       unBylineT m
-        & evalPrimF mode (fromMaybe stdout outh) compRef
+        & evalPrimF mode hOut compRef
         & unEvalT
         & runMaybeT
 
@@ -203,21 +230,23 @@ evalPrimF renderMode outputHandle compRef = Free.iterTM go
     liftHaskeline = Haskeline.withInterrupt >>> lift >>> EvalT
 
 -- | Calculate the default rendering mode based on the terminal type.
-defaultRenderMode :: MonadIO m => Haskeline.InputT m RenderMode
-defaultRenderMode = do
-  termHint <- Haskeline.haveTerminalUI
-  maxColors <- liftIO (runMaybeT getMaxColors)
-  pure $ case (termHint, maxColors) of
-    (True, Just n)
-      | n < 256 -> Simple
-      | n > 256 -> TermRGB
-      | otherwise -> Term256
-    (True, Nothing) -> Simple
-    (False, _) -> Plain
+defaultRenderMode :: Handle -> IO RenderMode
+defaultRenderMode hOut = do
+  isTerm <- ANSI.hSupportsANSI hOut
+  if isTerm
+    then runMaybeT getMaxColors >>= \case
+      Nothing -> pure Simple
+      Just n
+        | n < 256 -> pure Simple
+        | n > 256 -> pure TermRGB
+        | otherwise -> pure Term256
+    else pure Plain
   where
     getMaxColors :: MaybeT IO Int
     getMaxColors = do
       term <- MaybeT (System.lookupEnv "TERM")
-      liftIO (Terminfo.acquireDatabase term) >>= \case
+      lift (Terminfo.acquireDatabase term) >>= \case
         Left _ -> empty
-        Right db -> hoistMaybe (Terminfo.queryNumTermCap db Terminfo.MaxColors)
+        Right db ->
+          hoistMaybe $
+            Terminfo.queryNumTermCap db Terminfo.MaxColors

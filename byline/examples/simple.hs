@@ -26,6 +26,7 @@ import Byline
     bold,
     fg,
     green,
+    magenta,
     red,
     rgb,
     runBylineT,
@@ -33,27 +34,31 @@ import Byline
     text,
     underline,
   )
+import qualified Byline.Exit as Exit
 import qualified Data.Text as Text
 
 main :: IO ()
 main = void $ runBylineT $ do
-  -- Simple message to stdout:
-  sayLn "Okay, let's kick this off"
-
-  -- Now with some color:
-  sayLn ("I can use " <> ("color" <> fg blue) <> " too!")
+  -- Start with a simple message to standard output:
+  sayLn ("I can use " <> ("color" <> fg blue) <> "!")
 
   -- Get user input with a stylized prompt:
-  let question = "What's your favorite " <> ("language" <> bold) <> "? "
+  let question =
+        "What's your favorite "
+          <> ("language" <> bold <> fg green)
+          <> "? "
   language <- askLn question Nothing
 
   if Text.null language
-    then sayLn "Cat got your tongue?"
+    then Exit.die ("Cat got your tongue?" <> fg magenta)
     else sayLn ("I see, you like " <> (text language <> fg red) <> ".")
 
   -- Keep prompting until a confirmation function indicates that the
   -- user's input is sufficient:
-  let question = "What's your " <> ("name" <> fg green <> underline) <> "? "
+  let question =
+        "What's your "
+          <> ("name" <> fg green <> underline)
+          <> "? "
   name <- askUntil question Nothing (pure . atLeastThreeChars)
   sayLn $ "Hey there " <> text name <> fg (rgb 108 113 196)
 

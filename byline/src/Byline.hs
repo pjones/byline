@@ -31,6 +31,7 @@ module Byline
 
     -- * Stylizing modifiers
     Stylized,
+    ToStylizedText (..),
     text,
     fg,
     bg,
@@ -52,6 +53,7 @@ module Byline
 
     -- * Completion
     CompletionFunc,
+    Completion (..),
     pushCompletionFunction,
     popCompletionFunction,
   )
@@ -70,71 +72,82 @@ import Prelude hiding (ask)
 --
 -- @since 1.0.0.0
 say ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a) =>
   -- | The stylized text to output.
-  Stylized Text ->
+  a ->
   m ()
-say = Prim.say >>> liftByline
+say =
+  toStylizedText
+    >>> Prim.say
+    >>> liftByline
 
 -- | Like 'say', but append a newline character.
 --
 -- @since 1.0.0.0
 sayLn ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a) =>
   -- | The stylized text to output.  An appropirate line ending
   -- character will be added to the end of this text.
-  Stylized Text ->
+  a ->
   m ()
-sayLn = Prim.sayLn >>> liftByline
+sayLn =
+  toStylizedText
+    >>> Prim.sayLn
+    >>> liftByline
 
 -- | Read a line of input after printing the given stylized text as a
 -- prompt.
 --
 -- @since 1.0.0.0
 askLn ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a) =>
   -- | The prompt.
-  Stylized Text ->
+  a ->
   -- | The text to return if the user does not enter a response.
   Maybe Text ->
   -- | User input (or default answer).
   m Text
-askLn prompt def = liftByline (Prim.askLn prompt def)
+askLn prompt def = liftByline (Prim.askLn (toStylizedText prompt) def)
 
 -- | Read a single character of input.
 --
 -- @since 1.0.0.0
 askChar ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a) =>
   -- | The prompt to display.
-  Stylized Text ->
+  a ->
   m Char
-askChar = Prim.askChar >>> liftByline
+askChar =
+  toStylizedText
+    >>> Prim.askChar
+    >>> liftByline
 
 -- | Read a password without echoing it to the terminal.  If a masking
 -- character is given it will replace each typed character.
 --
 -- @since 1.0.0.0
 askPassword ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a) =>
   -- | The prompt to display.
-  Stylized Text ->
+  a ->
   -- | Optional masking character that will be printed each time the
   -- user presses a key.  When 'Nothing' is given the default behavior
   -- will be used which is system dependent but usually results in no
   -- characters being echoed to the terminal.
   Maybe Char ->
   m Text
-askPassword prompt = Prim.askPassword prompt >>> liftByline
+askPassword prompt =
+  Prim.askPassword (toStylizedText prompt)
+    >>> liftByline
 
 -- | Continue to prompt for a response until a confirmation function
 -- returns a valid result.
 --
 -- @since 1.0.0.0
 askUntil ::
-  MonadByline m =>
+  (MonadByline m, ToStylizedText a, ToStylizedText e) =>
   -- | The prompt to display.
-  Stylized Text ->
+  a ->
   -- | The default answer if the user presses enter without typing
   -- anything.
   Maybe Text ->
@@ -142,8 +155,8 @@ askUntil ::
   -- acceptable the function should return 'Right'.  If the input is
   -- invalid then it should return 'Left' with an error message to
   -- display.  The error message will be printed with 'sayLn'.
-  (Text -> m (Either (Stylized Text) a)) ->
-  m a
+  (Text -> m (Either e b)) ->
+  m b
 askUntil prompt def confirm = go
   where
     go = do
