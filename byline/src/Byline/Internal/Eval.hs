@@ -210,6 +210,7 @@ defaultRenderMode = do
   pure $ case (termHint, maxColors) of
     (True, Just n)
       | n < 256 -> Simple
+      | n > 256 -> TermRGB
       | otherwise -> Term256
     (True, Nothing) -> Simple
     (False, _) -> Plain

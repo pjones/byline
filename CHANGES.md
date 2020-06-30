@@ -24,6 +24,11 @@ to produce an MTL-compatible library.
   - Proper encoding of escape sequences so Haskeline doesn't
     [print garbage](https://github.com/judah/haskeline/issues/130) on Windows.
 
+  - Add support for RGB terminals
+
+  - [ ] Allow the render mode to be overridden so color escapes can go
+        to files if the user so chooses.
+
 ## 0.4.0.0 (March 17, 2020)
 
   - The `askUntil` function is now polymorphic in its return type.

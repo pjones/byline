@@ -26,6 +26,8 @@ module Byline.Internal.Color
     white,
     rgb,
     colorAsANSI,
+    colorAsIndex256,
+    colorAsRGB,
     nearestColor,
     term256Locations,
   )
@@ -81,6 +83,24 @@ rgb r g b = ColorRGB (r, g, b)
 colorAsANSI :: Color -> ANSI.Color
 colorAsANSI (ColorCode c) = c
 colorAsANSI (ColorRGB c) = nearestColor c ansiColorLocations
+
+-- | Convert a Byline color to an index into a terminal 256-color palette.
+--
+-- @since 1.0.0.0
+colorAsIndex256 :: Color -> Word8
+colorAsIndex256 = \case
+  ColorCode c -> ANSI.xtermSystem ANSI.Dull c
+  ColorRGB c -> nearestColor c term256Locations
+
+-- | Convert a Byline color to a 'C.Colour'.  If the color is
+-- specified using an ANSI color name then return that color code
+-- instead.  This allows the terminal to pick the color on its own.
+--
+-- @since 1.0.0.0
+colorAsRGB :: Color -> Either ANSI.Color (C.Colour Float)
+colorAsRGB = \case
+  ColorCode c -> Left c
+  ColorRGB (r, g, b) -> Right (C.sRGB24 r g b)
 
 -- | Find the nearest color given a full RGB color.
 --

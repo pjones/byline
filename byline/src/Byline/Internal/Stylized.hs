@@ -126,6 +126,8 @@ data RenderMode
     Simple
   | -- | Allow up to 216 colors.
     Term256
+  | -- | A terminal that supports full RGB colors.
+    TermRGB
 
 -- | Instructions for formatting stylized text after the 'RenderMode'
 -- has already been considered.
@@ -154,12 +156,13 @@ renderText :: RenderMode -> Stylized Text -> Text
 renderText mode stylized = foldMap go (renderInstructions mode stylized)
   where
     go :: RenderInstruction -> Text
-    go (RenderText t) = t
-    go (RenderSGR s) =
-      -- *NOTE:* The \STX character below is not a real terminal
-      -- escape character.  Instead it is intercepted by Haskeline.
-      -- See: https://github.com/judah/haskeline/wiki/ControlSequencesInPrompt
-      toText (ANSI.setSGRCode s) <> "\STX"
+    go = \case
+      RenderText t -> t
+      RenderSGR s ->
+        -- NOTE: The \STX character below is not a real terminal
+        -- escape character.  Instead it is intercepted by Haskeline.
+        -- See: https://github.com/judah/haskeline/wiki/ControlSequencesInPrompt
+        toText (ANSI.setSGRCode s) <> "\STX"
 
 -- | Internal function to turn stylized text into render instructions.
 --
@@ -173,64 +176,64 @@ renderInstructions mode = \case
     renderMod :: RenderMode -> (Text, Modifier) -> [RenderInstruction]
     renderMod mode (t, m) =
       case mode of
-        -- Only rendering text.
         Plain ->
+          -- Only render text, no modifiers.
           [RenderText t]
         Simple ->
-          [RenderSGR (modToSGR m), RenderText t, RenderSGR [ANSI.Reset]]
+          -- Terminal supports basic 16 colors.
+          let color l = ANSI.SetColor l ANSI.Dull . Color.colorAsANSI
+           in renderToSGR t m color
         Term256 ->
-          RenderText (term256ModToEsc m) : renderMod Simple (t, m)
+          -- Terminal supports the 256-color palette.
+          let color l = ANSI.SetPaletteColor l . Color.colorAsIndex256
+           in renderToSGR t m color
+        TermRGB ->
+          -- Super terminal!
+          let color l c = case Color.colorAsRGB c of
+                Left ac -> ANSI.SetColor l ANSI.Dull ac
+                Right rgb -> ANSI.SetRGBColor l rgb
+           in renderToSGR t m color
+    renderToSGR ::
+      Text ->
+      Modifier ->
+      (ANSI.ConsoleLayer -> Color -> ANSI.SGR) ->
+      [RenderInstruction]
+    renderToSGR t m f =
+      [ RenderSGR (modToSGR m f),
+        RenderText t,
+        RenderSGR [ANSI.Reset]
+      ]
 
 -- | Convert a modifier into a series of ANSI.SGR codes.
 --
 -- @since 1.0.0.0
-modToSGR :: Modifier -> [ANSI.SGR]
-modToSGR m =
+modToSGR ::
+  -- | The modifier to render as an SGR code.
+  Modifier ->
+  -- | A function that knows how to render colors.
+  (ANSI.ConsoleLayer -> Color -> ANSI.SGR) ->
+  -- | The resulting SGR codes.
+  [ANSI.SGR]
+modToSGR mod colorF =
   catMaybes
-    [ ANSI.SetColor ANSI.Foreground ANSI.Dull <$> modColor modColorFG,
-      ANSI.SetColor ANSI.Background ANSI.Dull <$> modColor modColorBG,
-      ANSI.SetConsoleIntensity <$> modIntensity,
-      ANSI.SetUnderlining <$> modUnderlining,
-      ANSI.SetSwapForegroundBackground <$> modSwapForegroundBackground
+    [ colorF ANSI.Foreground <$> getColor modColorFG,
+      colorF ANSI.Background <$> getColor modColorBG,
+      ANSI.SetConsoleIntensity <$> getIntensity,
+      ANSI.SetUnderlining <$> getUnderlining,
+      ANSI.SetSwapForegroundBackground <$> getSwapForegroundBackground
     ]
   where
-    modColor :: (Modifier -> OnlyOne Color) -> Maybe ANSI.Color
-    modColor f = Color.colorAsANSI <$> unOne (f m)
-    modIntensity :: Maybe ANSI.ConsoleIntensity
-    modIntensity = case modBold m of
+    getColor :: (Modifier -> OnlyOne Color) -> Maybe Color
+    getColor f = unOne (f mod)
+    getIntensity :: Maybe ANSI.ConsoleIntensity
+    getIntensity = case modBold mod of
       Off -> Nothing
       On -> Just ANSI.BoldIntensity
-    modUnderlining :: Maybe ANSI.Underlining
-    modUnderlining = case modUnderline m of
+    getUnderlining :: Maybe ANSI.Underlining
+    getUnderlining = case modUnderline mod of
       Off -> Nothing
       On -> Just ANSI.SingleUnderline
-    modSwapForegroundBackground :: Maybe Bool
-    modSwapForegroundBackground = case modSwapFgBg m of
+    getSwapForegroundBackground :: Maybe Bool
+    getSwapForegroundBackground = case modSwapFgBg mod of
       Off -> Nothing
       On -> Just True
-
--- | Convert modifiers into direct escape sequences for modifiers
--- that can't be converted into ANSI.SGR codes (e.g., RGB colors).
---
--- See: <http://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
---
--- @since 1.0.0.0
-term256ModToEsc :: Modifier -> Text
-term256ModToEsc m =
-  mconcat $
-    catMaybes
-      [ escape ANSI.Foreground <$> modColor modColorFG,
-        escape ANSI.Background <$> modColor modColorBG
-      ]
-  where
-    modColor :: (Modifier -> OnlyOne Color) -> Maybe (Word8, Word8, Word8)
-    modColor f = case unOne (f m) of
-      Just (Color.ColorRGB c) -> Just c
-      _ -> Nothing
-    -- Produce the correct CSI escape.
-    escape :: ANSI.ConsoleLayer -> (Word8, Word8, Word8) -> Text
-    escape ANSI.Foreground c = mconcat ["\ESC[38;5;", colorIndex c, "m"]
-    escape ANSI.Background c = mconcat ["\ESC[48;5;", colorIndex c, "m"]
-    -- Return the 216-color index for (r, g, b).
-    colorIndex :: (Word8, Word8, Word8) -> Text
-    colorIndex c = show (Color.nearestColor c Color.term256Locations)
