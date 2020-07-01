@@ -32,9 +32,11 @@ example = do
   askLn question (Just "Haskell")
 ```
 
+![Demo](doc/demo.png)
+
 ## Interfaces
 
-  * The MTL interface lives in the `byline` directory.
+  * The MTL interface lives in the [`byline`](byline) directory.
 
 [ansi-terminal]: http://hackage.haskell.org/package/ansi-terminal
 [haskeline]: https://hackage.haskell.org/package/haskeline
