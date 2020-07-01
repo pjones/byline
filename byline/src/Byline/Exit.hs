@@ -16,6 +16,9 @@ module Byline.Exit
   ( -- * Exiting with style
     die,
 
+    -- * Warnings
+    warn,
+
     -- * Re-exports
     module Byline,
   )
@@ -37,7 +40,17 @@ import Prelude hiding (die)
 --
 -- @since 1.0.0.0
 die :: (MonadIO m, ToStylizedText a) => a -> m b
-die a = liftIO $ do
+die a = do
+  warn a
+  liftIO (IO.hFlush stderr >> Exit.exitFailure)
+
+-- | Print a message to standard error.
+--
+-- Unlike 'die', this function will __not__ exit the current process.
+--
+-- @since 1.0.0.0
+warn :: (MonadIO m, ToStylizedText a) => a -> m ()
+warn a = liftIO $ do
   name <- Environment.getProgName <&> toText
 
   let msg =
@@ -50,5 +63,3 @@ die a = liftIO $ do
 
   mode <- defaultRenderMode stderr
   render mode stderr msg
-  IO.hFlush stderr
-  Exit.exitFailure

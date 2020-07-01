@@ -19,7 +19,8 @@ to produce an MTL-compatible library.
     easy to exit with custom error types.
 
   - The `Report` type and associated functions were superfluous and
-    therefore removed.
+    therefore removed.  (Consider using the new `die` and `warn`
+    functions in `Byline.Exit`.)
 
   - Menus now use `NonEmpty` to represent items and therefore the menu
     `Choice` type has been simplified, removing the `NoItems`
@@ -32,9 +33,6 @@ to produce an MTL-compatible library.
     [print garbage](https://github.com/judah/haskeline/issues/130) on Windows.
 
   - Add support for RGB terminals
-
-  - [ ] Allow the render mode to be overridden so color escapes can go
-        to files if the user so chooses.
 
 ## 0.4.0.0 (March 17, 2020)
 
