@@ -40,6 +40,8 @@ description:
   >           <> "? "
   >
   >   askLn question (Just "Haskell")
+  .
+  <<https://github.com/pjones/byline/raw/master/doc/demo.png>>
 
 --------------------------------------------------------------------------------
 extra-source-files:
