@@ -18,22 +18,6 @@ module Main
 where
 
 import Byline
-  ( Stylized,
-    askLn,
-    askUntil,
-    bg,
-    blue,
-    bold,
-    fg,
-    green,
-    magenta,
-    red,
-    rgb,
-    runBylineT,
-    sayLn,
-    text,
-    underline,
-  )
 import qualified Byline.Exit as Exit
 import qualified Data.Text as Text
 

@@ -201,16 +201,18 @@ popCompletionFunction = liftByline Prim.popCompFunc
 -- @
 -- {-\# LANGUAGE OverloadedStrings \#-}
 --
+-- example :: MonadByline m => m Text
+-- example = do
+--   sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
 --
--- main = do
---   language <- 'runBylineT' $ do
---     'sayLn' ("Look mom, " <> ("colors" <> 'fg' 'blue') <> "!")
+--   let question =
+--         "What's "
+--           <> ("your" <> bold)
+--           <> " favorite "
+--           <> ("language" <> fg green <> underline)
+--           <> "? "
 --
---     let question = "What's your favorite " <>
---                    ("language" <> 'bold') <> "? "
---
---     'askLn' question Nothing
---  print language
+--   askLn question (Just "Haskell")
 -- @
 --
 -- More complete examples can be found in the @examples@

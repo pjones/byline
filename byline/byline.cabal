@@ -25,6 +25,21 @@ description:
   The primary features of Byline include printing messages, prompting
   for input, and generating custom menus.  It was inspired by the
   @highline@ Ruby library and the @terminal@ library by Craig Roche.
+  .
+  == Example
+  .
+  > example :: MonadByline m => m Text
+  > example = do
+  >   sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
+  >
+  >   let question =
+  >         "What's "
+  >           <> ("your" <> bold)
+  >           <> " favorite "
+  >           <> ("language" <> fg green <> underline)
+  >           <> "? "
+  >
+  >   askLn question (Just "Haskell")
 
 --------------------------------------------------------------------------------
 extra-source-files:
@@ -101,6 +116,15 @@ library
     Byline.Internal.Stylized
     Byline.Internal.Types
     Byline.Menu
+
+--------------------------------------------------------------------------------
+executable demo
+  import:        options, dependencies
+  main-is:       examples/demo.hs
+  build-depends: byline
+
+  if !flag(build-examples)
+    buildable: False
 
 --------------------------------------------------------------------------------
 executable simple
