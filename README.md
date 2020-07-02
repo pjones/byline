@@ -1,6 +1,6 @@
 # Byline
 
-[![Tests](https://github.com/pjones/byline/workflows/test/badge.svg)](https://github.com/pjones/byline/actions)
+[![CI](https://github.com/pjones/byline/workflows/CI/badge.svg)](https://github.com/pjones/byline/actions)
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/pjones/byline?label=release)](https://github.com/pjones/byline/releases)
 [![Hackage](https://img.shields.io/hackage/v/byline)](https://hackage.haskell.org/package/byline)
 

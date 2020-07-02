@@ -1,0 +1,61 @@
+name: CI
+on:
+  pull_request:
+  push:
+jobs:
+  cabal:
+    name: ${{ matrix.os }} / ghc-${{ matrix.ghc }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        cabal: ["3.2"]
+        ghc: ["8.6.5", "8.8.3", "8.10.1"]
+        # Newer versions of GHC are broken on Windows:
+        # https://gitlab.haskell.org/ghc/ghc/-/issues/17926
+        exclude:
+          - os: windows-latest
+            ghc: "8.8.3"
+          - os: windows-latest
+            ghc: "8.10.1"
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Haskell
+        id: setup-haskell-cabal
+        uses: actions/setup-haskell@v1.1
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+
+      - name: Configure and Freeze for Cache
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --test-show-details=direct -fbuild-examples
+          cabal freeze
+
+      - name: Cache ~/.cabal/store
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+
+      - name: Build
+        run: cabal build all '--build-log=logs/$pkgid'
+
+      - name: Upload Build Logs on Failure
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: logs-${{ matrix.os }}-ghc${{ matrix.ghc }}
+          path: logs/
+
+      - name: Install
+        run: cabal install all --installdir=artifacts --install-method=copy
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-ghc${{ matrix.ghc }}
+          path: artifacts/
