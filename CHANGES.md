@@ -1,5 +1,42 @@
 # Version History
 
+## 1.0.0.0 (July 27, 2020)
+
+This version is the result of a major refactoring of the code in order
+to produce an MTL-compatible library.
+
+  - New MTL-style class: `MonadByline`
+
+  - Proper monad transformer: `BylineT`
+
+  - Most of the library is under a single import: `Byline`
+
+  - Added a `ToStylizedText` class to enable using custom types with
+    functions like `menu`.
+
+  - New `Byline.Exit.die` function to exit the current process with a
+    stylized error message.  Thanks to the `ToStylizedText` class it's
+    easy to exit with custom error types.
+
+  - The `Report` type and associated functions were superfluous and
+    therefore removed.  (Consider using the new `die` and `warn`
+    functions in `Byline.Exit`.)
+
+  - Menus now use `NonEmpty` to represent items and therefore the menu
+    `Choice` type has been simplified, removing the `NoItems`
+    constructor.
+
+  - Fixed a bug where `Stylized Text` was not rendered when using one
+    of the `ask*` functions (#1).
+
+  - Proper encoding of escape sequences so Haskeline doesn't
+    [print garbage](https://github.com/judah/haskeline/issues/130) on Windows.
+
+  - Added support for RGB terminals
+
+  - Added an implementation of 'MonadByline' that uses simulated user
+    input to test your Byline code.
+
 ## 0.4.0.0 (March 17, 2020)
 
   - The `askUntil` function is now polymorphic in its return type.

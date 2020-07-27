@@ -12,5 +12,27 @@
 --   terms contained in the LICENSE file.
 --
 -- License: BSD-2-Clause
-import Distribution.Simple
-main = defaultMain
+module Main
+  ( main,
+  )
+where
+
+import Byline
+
+-- | Simple example.
+example :: MonadByline m => m Text
+example = do
+  sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
+
+  let question =
+        "What's "
+          <> ("your" <> bold)
+          <> " favorite "
+          <> ("language" <> fg green <> underline)
+          <> "? "
+
+  askLn question (Just "Haskell")
+
+-- | Main.
+main :: IO ()
+main = runBylineT example >>= print

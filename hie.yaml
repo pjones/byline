@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./byline/"
+      component: "lib:byline"
+    - path: "./byline/test"
+      component: "test:test"
