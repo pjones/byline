@@ -13,10 +13,10 @@
 --
 -- License: BSD-2-Clause
 module Byline.Menu
-  ( -- * Menus with tab completion
+  ( -- * Menus with Tab Completion
     -- $usage
 
-    -- * Building a menu
+    -- * Building a Menu
     Menu,
     menu,
     menuBanner,
@@ -25,7 +25,7 @@ module Byline.Menu
     FromChoice,
     menuFromChoiceFunc,
 
-    -- * Prompting with a menu
+    -- * Prompting with a Menu
     askWithMenu,
     askWithMenuRepeatedly,
     Choice (..),
@@ -36,6 +36,7 @@ module Byline.Menu
 where
 
 import Byline
+import Byline.Completion
 import Byline.Internal.Stylized (RenderMode (..), renderText)
 import qualified Data.Text as Text
 import Relude.Extra.Map
@@ -132,7 +133,7 @@ defaultFromChoice config prefixes input =
 -- | Default completion function.  Matches all of the menu items.
 --
 -- @since 1.0.0.0
-defaultCompFunc :: ToStylizedText a => Menu a -> CompletionFunc IO
+defaultCompFunc :: (Applicative m, ToStylizedText a) => Menu a -> CompletionFunc m
 defaultCompFunc config (left, _) =
   pure ("", completions matches)
   where

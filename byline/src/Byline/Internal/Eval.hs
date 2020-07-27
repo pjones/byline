@@ -145,9 +145,11 @@ runBylineT' Settings {..} m = do
         Haskeline.setComplete
           (compFunc compRef)
           Haskeline.defaultSettings
-  let behavior = case bylineInput of
-        Nothing -> Haskeline.defaultBehavior
-        Just hIn -> Haskeline.useFileHandle hIn
+  let behavior =
+        maybe
+          Haskeline.defaultBehavior
+          Haskeline.useFileHandle
+          bylineInput
   let hOut = fromMaybe stdout bylineOutput
   Haskeline.runInputTBehavior behavior settings (go compRef hOut)
   where

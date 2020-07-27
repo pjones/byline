@@ -73,8 +73,10 @@ common options
     FlexibleContexts
     FlexibleInstances
     GeneralizedNewtypeDeriving
+    InstanceSigs
     KindSignatures
     LambdaCase
+    MultiParamTypeClasses
     NamedFieldPuns
     OverloadedStrings
     RankNTypes
@@ -111,14 +113,28 @@ library
   hs-source-dirs:  src
   exposed-modules:
     Byline
+    Byline.Completion
     Byline.Exit
     Byline.Internal.Color
     Byline.Internal.Completion
     Byline.Internal.Eval
     Byline.Internal.Prim
+    Byline.Internal.Simulation
     Byline.Internal.Stylized
     Byline.Internal.Types
     Byline.Menu
+    Byline.Simulation
+
+------------------------------------------------------------------------------
+test-suite test
+  import:         options, dependencies
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is:        Main.hs
+  build-depends:
+    , byline
+    , tasty        >=1.2
+    , tasty-hunit  ^>=0.10
 
 --------------------------------------------------------------------------------
 executable demo

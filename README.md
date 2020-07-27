@@ -38,6 +38,8 @@ example = do
 
   * The MTL interface lives in the [`byline`](byline) directory.
 
+  * A `fused-effects` interface is forthcoming.
+
 [ansi-terminal]: http://hackage.haskell.org/package/ansi-terminal
 [haskeline]: https://hackage.haskell.org/package/haskeline
 [highline]: https://github.com/JEG2/highline

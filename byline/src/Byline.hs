@@ -13,15 +13,15 @@
 --
 -- License: BSD-2-Clause
 module Byline
-  ( -- * How to use this library
+  ( -- * How to Use this Library
     -- $use
 
-    -- * Byline class and transformer
+    -- * Byline Class and Transformer
     MonadByline,
     BylineT,
     runBylineT,
 
-    -- * Basic user interaction
+    -- * Basic User Interaction
     say,
     sayLn,
     askLn,
@@ -29,7 +29,7 @@ module Byline
     askPassword,
     askUntil,
 
-    -- * Stylizing modifiers
+    -- * Stylizing Modifiers
     Stylized,
     ToStylizedText (..),
     text,
@@ -50,17 +50,10 @@ module Byline
     cyan,
     white,
     rgb,
-
-    -- * Completion
-    CompletionFunc,
-    Completion (..),
-    pushCompletionFunction,
-    popCompletionFunction,
   )
 where
 
 import Byline.Internal.Color
-import Byline.Internal.Completion
 import Byline.Internal.Eval (BylineT, MonadByline (..), runBylineT)
 import qualified Byline.Internal.Prim as Prim
 import Byline.Internal.Stylized
@@ -164,18 +157,6 @@ askUntil prompt def confirm = go
       confirm answer >>= \case
         Left msg -> sayLn msg >> go
         Right res -> pure res
-
--- | Add a 'CompletionFunc' to the stack.
---
--- @since 1.0.0.0
-pushCompletionFunction :: MonadByline m => CompletionFunc IO -> m ()
-pushCompletionFunction = Prim.pushCompFunc >>> liftByline
-
--- | Remove the top completion function from the stack.
---
--- @since 1.0.0.0
-popCompletionFunction :: MonadByline m => m ()
-popCompletionFunction = liftByline Prim.popCompFunc
 
 -- $use
 --

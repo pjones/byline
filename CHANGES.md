@@ -1,6 +1,6 @@
 # Version History
 
-## 1.0.0.0 (???)
+## 1.0.0.0 (July 27, 2020)
 
 This version is the result of a major refactoring of the code in order
 to produce an MTL-compatible library.
@@ -32,7 +32,10 @@ to produce an MTL-compatible library.
   - Proper encoding of escape sequences so Haskeline doesn't
     [print garbage](https://github.com/judah/haskeline/issues/130) on Windows.
 
-  - Add support for RGB terminals
+  - Added support for RGB terminals
+
+  - Added an implementation of 'MonadByline' that uses simulated user
+    input to test your Byline code.
 
 ## 0.4.0.0 (March 17, 2020)
 

@@ -44,6 +44,9 @@ jobs:
       - name: Build
         run: cabal build all '--build-log=logs/$pkgid'
 
+      - name: Test
+        run: cabal test all
+
       - name: Upload Build Logs on Failure
         uses: actions/upload-artifact@v2
         if: failure()
