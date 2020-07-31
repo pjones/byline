@@ -36,7 +36,7 @@ example = do
 
 ## Interfaces
 
-  * The MTL interface lives in the [`byline`](byline) directory.
+  * The MTL interface lives in the [`mtl`](mtl) directory.
 
   * A `fused-effects` interface is forthcoming.
 
