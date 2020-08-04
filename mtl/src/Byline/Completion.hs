@@ -20,6 +20,9 @@ module Byline.Completion
     CompletionFunc,
     Completion (..),
 
+    -- * Completion Helpers
+    completionFromList,
+
     -- * Setting the Active Completion Function
     pushCompletionFunction,
     popCompletionFunction,
@@ -29,6 +32,7 @@ where
 import Byline.Internal.Completion
 import Byline.Internal.Eval (MonadByline (..))
 import qualified Byline.Internal.Prim as Prim
+import qualified Data.Text as Text
 
 -- | Add a 'CompletionFunc' to the stack.
 --
@@ -41,6 +45,21 @@ pushCompletionFunction = Prim.pushCompFunc >>> liftByline
 -- @since 1.0.0.0
 popCompletionFunction :: MonadByline m => m ()
 popCompletionFunction = liftByline Prim.popCompFunc
+
+-- | Generate a completion function that uses the give list as
+-- completion targets.
+--
+-- @since 1.1.0.0
+completionFromList :: Applicative m => [Text] -> CompletionFunc m
+completionFromList ts (left, _) =
+  pure $
+    ("",) $
+      if Text.null left
+        then completions ts
+        else completions (filter (Text.isPrefixOf left) ts)
+  where
+    completions :: [Text] -> [Completion]
+    completions = map (\t -> Completion t t True)
 
 -- $use
 --

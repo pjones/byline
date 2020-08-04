@@ -56,9 +56,9 @@ warn a = liftIO $ do
   let msg =
         mconcat
           [ text name,
-            ": ",
+            text ": ",
             toStylizedText a,
-            "\n"
+            text "\n"
           ]
 
   mode <- defaultRenderMode stderr

@@ -1,6 +1,6 @@
 cabal-version:      2.2
 name:               byline
-version:            1.0.0.0
+version:            1.1.0.0
 homepage:           https://github.com/pjones/byline
 bug-reports:        https://github.com/pjones/byline/issues
 license:            BSD-2-Clause
@@ -70,8 +70,10 @@ common options
     DeriveFunctor
     DeriveTraversable
     DerivingStrategies
+    ExistentialQuantification
     FlexibleContexts
     FlexibleInstances
+    FunctionalDependencies
     GeneralizedNewtypeDeriving
     InstanceSigs
     KindSignatures
@@ -82,6 +84,7 @@ common options
     RankNTypes
     RecordWildCards
     ScopedTypeVariables
+    TupleSections
     TypeFamilies
 
   ghc-options:
@@ -92,16 +95,18 @@ common options
 --------------------------------------------------------------------------------
 common dependencies
   build-depends:
-    , ansi-terminal  >=0.6  && <0.11
-    , base           >=4.9  && <5.0
-    , colour         ^>=2.3
-    , exceptions     >=0.8  && <0.11
-    , free           ^>=5.1
-    , haskeline      ^>=0.8
-    , mtl            >=2.1  && <2.3
-    , relude         >=0.6  && <0.8
-    , terminfo-hs    >=0.1  && <0.3
-    , text           >=0.11 && <1.3
+    , ansi-terminal         >=0.6  && <0.11
+    , attoparsec            ^>=0.13
+    , base                  >=4.9  && <5.0
+    , colour                ^>=2.3
+    , exceptions            >=0.8  && <0.11
+    , free                  ^>=5.1
+    , haskeline             ^>=0.8
+    , mtl                   >=2.1  && <2.3
+    , optparse-applicative  >=0.14 && <0.16
+    , relude                >=0.6  && <0.8
+    , terminfo-hs           >=0.1  && <0.3
+    , text                  >=0.11 && <1.3
 
   mixins:
     base hiding (Prelude),
@@ -123,6 +128,7 @@ library
     Byline.Internal.Stylized
     Byline.Internal.Types
     Byline.Menu
+    Byline.Shell
     Byline.Simulation
 
 ------------------------------------------------------------------------------
@@ -158,6 +164,15 @@ executable simple
 executable menu
   import:        options, dependencies
   main-is:       examples/menu.hs
+  build-depends: byline
+
+  if !flag(build-examples)
+    buildable: False
+
+--------------------------------------------------------------------------------
+executable shell
+  import:        options, dependencies
+  main-is:       examples/shell.hs
   build-depends: byline
 
   if !flag(build-examples)

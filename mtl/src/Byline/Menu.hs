@@ -223,9 +223,9 @@ askWithMenu m prompt =
     firstItem = Text.strip (renderText Plain (_menuItemPrefix m 1))
     -- Print the entire menu.
     displayMenu = do
-      maybe pass ((<> "\n") >>> sayLn) (_menuBanner m)
+      maybe pass ((<> text "\n") >>> sayLn) (_menuBanner m)
       cache <- foldlM listItem mempty (zip [1 ..] (toList $ _menuItems m))
-      sayLn (maybe mempty ("\n" <>) (_menuBeforePrompt m))
+      sayLn (maybe mempty (text "\n" <>) (_menuBeforePrompt m))
       pure cache
     -- Print a menu item and cache its prefix in a Map.
     listItem cache (index, item) = do
