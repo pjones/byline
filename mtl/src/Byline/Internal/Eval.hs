@@ -202,7 +202,7 @@ evalPrimF renderMode outputHandle compRef = Free.iterTM go
       AskLn s d k -> do
         let prompt =
               renderText renderMode $
-                maybe s (\d' -> s <> text "[" <> text d' <> "] ") d
+                maybe s (\d' -> s <> text "[" <> text d' <> text "] ") d
         liftHaskeline (Haskeline.getInputLine (toString prompt)) >>= \case
           Nothing -> EvalT empty
           Just answer
