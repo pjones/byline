@@ -92,22 +92,15 @@ shellHelp Shell {..} = do
 --
 -- @since 1.1.0.0
 shellCompletion :: Applicative m => Shell a -> CompletionFunc m
-shellCompletion shell input@(left, right) = do
+shellCompletion shell input@(left, _) = do
   if Text.null left || Text.all (isSpace >>> not) left
-    then completionFromList (keys commands) input
-    else completeFlags
+    then completionFromList CompHead (keys commands) input
+    else completionFromList CompTail flags input
   where
-    -- Complete flag names for the command in @left@.
-    completeFlags =
-      let cmd = Text.words left & viaNonEmpty head
-          fs = maybe [] flags cmd
-          left' = Text.takeWhileEnd (isSpace >>> not) left
-       in completionFromList fs (left', right)
-            <&> first (const $ Text.dropEnd (Text.length left') left)
-
-    -- Get a list of flags for the given subcommand.
-    flags :: Text -> [Text]
-    flags cmd = fromMaybe [] $ do
+    -- Get a list of flags for the current subcommand.
+    flags :: [Text]
+    flags = fromMaybe [] $ do
+      cmd <- Text.words left & viaNonEmpty head
       names <- lookup cmd commands
       pure $
         flip map names $ \case
