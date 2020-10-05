@@ -1,0 +1,8 @@
+snapshot: lts-16.17
+
+packages:
+  - mtl
+
+extra-deps:
+  - haskeline-0.8.1.0@sha256:6a6158c90b929ce7aa5331ff5e9819aa32c7df8f4a7ba324b3cc055ee96b48cb,5818
+  - terminfo-hs-0.2.1.1@sha256:c193c5333a18ad030c146c2282dd3828e670af344fbfdbcb681dbf6abd99ca1c,1629
