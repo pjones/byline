@@ -11,7 +11,7 @@ copyright:          Copyright: (c) 2015-2020 Peter J. Jones
 category:           System, User Interfaces
 build-type:         Simple
 stability:          stable
-tested-with:        GHC ==8.6.5 || ==8.8.3 || ==8.10.1
+tested-with:        GHC ==8.6.5 || ==8.8.4 || ==8.10.2
 synopsis:
   Library for creating command-line interfaces (colors, menus, etc.)
 
