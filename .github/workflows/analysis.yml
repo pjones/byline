@@ -15,11 +15,8 @@ jobs:
         with:
           ghc-version: 8.8
 
-      - name: Install Necessary Tools
-        run: sudo apt-get install hlint
-
       - name: Cabal Check
         run: cabal check
 
       - name: Lint
-        run: hlint .
+        run: curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s .
