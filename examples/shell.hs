@@ -17,9 +17,9 @@ module Main
   )
 where
 
-import Byline
-import Byline.Shell
-import qualified Data.Text as Text
+import           Byline
+import           Byline.Shell
+import qualified Data.Text           as Text
 import qualified Options.Applicative as O
 
 data Command

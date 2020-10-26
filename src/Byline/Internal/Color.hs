@@ -33,10 +33,10 @@ module Byline.Internal.Color
   )
 where
 
-import Byline.Internal.Types
-import qualified Data.Colour.CIE as C
-import qualified Data.Colour.SRGB as C
-import qualified System.Console.ANSI as ANSI
+import           Byline.Internal.Types
+import qualified Data.Colour.CIE       as C
+import qualified Data.Colour.SRGB      as C
+import qualified System.Console.ANSI   as ANSI
 
 -- | Standard ANSI color by name.
 --
@@ -82,7 +82,7 @@ rgb r g b = ColorRGB (r, g, b)
 -- @since 1.0.0.0
 colorAsANSI :: Color -> ANSI.Color
 colorAsANSI (ColorCode c) = c
-colorAsANSI (ColorRGB c) = nearestColor c ansiColorLocations
+colorAsANSI (ColorRGB c)  = nearestColor c ansiColorLocations
 
 -- | Convert a Byline color to an index into a terminal 256-color palette.
 --
@@ -115,7 +115,7 @@ nearestColor ::
   a
 nearestColor (r, g, b) table =
   case listToMaybe (sortColors $ distances table) of
-    Nothing -> minBound -- Should never happen.
+    Nothing     -> minBound -- Should never happen.
     Just (c, _) -> c
   where
     location :: (Double, Double, Double)

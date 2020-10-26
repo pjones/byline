@@ -17,7 +17,7 @@ module Main
   )
 where
 
-import Byline.Menu
+import           Byline.Menu
 import qualified Data.List.NonEmpty as NonEmpty
 
 -- | Menu items that we'll ask the user to choose from.
@@ -29,7 +29,7 @@ data Item
 -- | How to display a menu item.
 instance ToStylizedText Item where
   toStylizedText item = case item of
-    Fruit name -> text name <> (" (fruit)" <> fg red)
+    Fruit name     -> text name <> (" (fruit)" <> fg red)
     Vegetable name -> text name <> (" (vegetable)" <> fg green)
 
 -- | The list of menu items.

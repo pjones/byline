@@ -25,19 +25,20 @@ module Byline.Internal.Eval
   )
 where
 
-import Byline.Internal.Completion
-import Byline.Internal.Prim (PrimF (..))
-import Byline.Internal.Stylized
-import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
-import Control.Monad.Cont (ContT, MonadCont)
-import Control.Monad.Except (MonadError)
-import qualified Control.Monad.State.Lazy as LState
+import           Byline.Internal.Completion
+import           Byline.Internal.Prim            (PrimF (..))
+import           Byline.Internal.Stylized
+import           Control.Monad.Catch             (MonadCatch, MonadMask,
+                                                  MonadThrow)
+import           Control.Monad.Cont              (ContT, MonadCont)
+import           Control.Monad.Except            (MonadError)
+import qualified Control.Monad.State.Lazy        as LState
 import qualified Control.Monad.Trans.Free.Church as Free
-import qualified System.Console.ANSI as ANSI
-import qualified System.Console.Haskeline as Haskeline
-import qualified System.Environment as System
-import qualified System.Terminfo as Terminfo
-import qualified System.Terminfo.Caps as Terminfo
+import qualified System.Console.ANSI             as ANSI
+import qualified System.Console.Haskeline        as Haskeline
+import qualified System.Environment              as System
+import qualified System.Terminfo                 as Terminfo
+import qualified System.Terminfo.Caps            as Terminfo
 
 -- | A class of types that can lift Byline operations into a base
 -- monad.
@@ -116,12 +117,12 @@ data Settings = Settings
     bylineOutput :: Maybe Handle,
     -- | The input handle to read from.  If 'Nothing' use standard
     -- input.
-    bylineInput :: Maybe Handle,
+    bylineInput  :: Maybe Handle,
     -- | Override the detected render mode.
     --
     -- If 'Nothing' use the render mode that is calculated based on
     -- the type of handle Byline writes to.
-    bylineMode :: Maybe RenderMode
+    bylineMode   :: Maybe RenderMode
   }
 
 -- | The default Byline settings.

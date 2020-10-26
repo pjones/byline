@@ -46,9 +46,9 @@ data Status = On | Off
 -- | @since 1.0.0.0
 instance Semigroup Status where
   (<>) Off Off = Off
-  (<>) Off On = On
-  (<>) On On = On
-  (<>) On Off = On
+  (<>) Off On  = On
+  (<>) On On   = On
+  (<>) On Off  = On
 
 -- | @since 1.0.0.0
 instance Monoid Status where
@@ -63,7 +63,7 @@ newtype OnlyOne a = OnlyOne {unOne :: Maybe a}
 -- | @since 1.0.0.0
 instance Semigroup (OnlyOne a) where
   (<>) _ b@(OnlyOne (Just _)) = b
-  (<>) a _ = a
+  (<>) a _                    = a
 
 -- | @since 1.0.0.0
 instance Monoid (OnlyOne a) where
@@ -73,11 +73,11 @@ instance Monoid (OnlyOne a) where
 --
 -- @since 1.0.0.0
 data Modifier = Modifier
-  { modColorFG :: OnlyOne Color,
-    modColorBG :: OnlyOne Color,
-    modBold :: Status,
+  { modColorFG   :: OnlyOne Color,
+    modColorBG   :: OnlyOne Color,
+    modBold      :: Status,
     modUnderline :: Status,
-    modSwapFgBg :: Status
+    modSwapFgBg  :: Status
   }
   deriving (Show, Eq)
 

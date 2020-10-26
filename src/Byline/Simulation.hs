@@ -32,8 +32,8 @@ module Byline.Simulation
   )
 where
 
-import Byline hiding (BylineT, runBylineT)
-import Byline.Internal.Simulation
+import           Byline                     hiding (BylineT, runBylineT)
+import           Byline.Internal.Simulation
 
 -- $use
 --

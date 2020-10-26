@@ -24,15 +24,15 @@ module Byline.Internal.Simulation
   )
 where
 
-import Byline.Internal.Completion
-import Byline.Internal.Eval (MonadByline (..))
-import Byline.Internal.Prim
-import Byline.Internal.Stylized
-import Control.Monad.Catch (MonadCatch, MonadThrow)
-import Control.Monad.Cont (MonadCont)
-import Control.Monad.Except (MonadError)
+import           Byline.Internal.Completion
+import           Byline.Internal.Eval            (MonadByline (..))
+import           Byline.Internal.Prim
+import           Byline.Internal.Stylized
+import           Control.Monad.Catch             (MonadCatch, MonadThrow)
+import           Control.Monad.Cont              (MonadCont)
+import           Control.Monad.Except            (MonadError)
 import qualified Control.Monad.Trans.Free.Church as Free
-import qualified Data.Text as Text
+import qualified Data.Text                       as Text
 
 -- | Simulated user input.
 --
@@ -80,9 +80,9 @@ data SimulationState m = SimulationState
   { -- | The prompt associated with current request for input.  This
     -- 'Text' value will /not/ contain any formatting escape codes such
     -- as colors.
-    precedingPrompt :: Text,
+    precedingPrompt     :: Text,
     -- | The function that will be called to simulate user input.
-    simulationFunction :: SimulationFunction m,
+    simulationFunction  :: SimulationFunction m,
     -- | The stack of completion functions.
     completionFunctions :: [CompletionFunc IO]
   }
@@ -142,7 +142,7 @@ evalPrimF = Free.iterM go
         BylineT
           ( lift . modify $ \st ->
               case completionFunctions st of
-                [] -> st {completionFunctions = []}
+                []     -> st {completionFunctions = []}
                 _ : xs -> st {completionFunctions = xs}
           )
           >> k

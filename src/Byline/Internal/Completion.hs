@@ -22,7 +22,7 @@ module Byline.Internal.Completion
   )
 where
 
-import qualified Data.Text as Text
+import qualified Data.Text                           as Text
 import qualified System.Console.Haskeline.Completion as Haskeline
 
 -- | A completion function modeled after the one used in Haskeline.
@@ -61,10 +61,10 @@ data Completion = Completion
   { -- | Text to insert to the right of the cursor.
     replacement :: Text,
     -- | Text to display when listing all completions.
-    display :: Text,
+    display     :: Text,
     -- | Whether to follow the completed word with a
     --  terminating space or close existing quotes.
-    isFinished :: Bool
+    isFinished  :: Bool
   }
   deriving (Eq, Ord, Show)
 
@@ -115,4 +115,4 @@ runCompletionFunctions fs input =
       m (String, [Haskeline.Completion])
     go prev f = case prev of
       (_, []) -> runCompletionFunction f input
-      _ -> pure prev
+      _       -> pure prev

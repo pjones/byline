@@ -26,11 +26,11 @@ module Byline.Internal.Prim
   )
 where
 
-import Byline.Internal.Completion (CompletionFunc)
-import Byline.Internal.Stylized (Stylized, text)
-import Control.Monad.Trans.Free.Church (MonadFree)
+import           Byline.Internal.Completion      (CompletionFunc)
+import           Byline.Internal.Stylized        (Stylized, text)
+import           Control.Monad.Trans.Free.Church (MonadFree)
 import qualified Control.Monad.Trans.Free.Church as Free
-import Prelude hiding (ask)
+import           Prelude                         hiding (ask)
 
 -- | Primitive operations as a free monad.
 --

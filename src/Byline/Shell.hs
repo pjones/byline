@@ -26,15 +26,15 @@ module Byline.Shell
   )
 where
 
-import Byline
-import Byline.Completion
-import qualified Data.Attoparsec.Text as Atto
-import Data.Char
-import qualified Data.Text as Text
-import qualified Options.Applicative as O
+import           Byline
+import           Byline.Completion
+import qualified Data.Attoparsec.Text       as Atto
+import           Data.Char
+import qualified Data.Text                  as Text
+import qualified Options.Applicative        as O
 import qualified Options.Applicative.Common as O
-import qualified Options.Applicative.Types as O
-import Relude.Extra.Map
+import qualified Options.Applicative.Types  as O
+import           Relude.Extra.Map
 
 -- | A type that describes how to process user-entered shells.
 --
@@ -43,10 +43,10 @@ data Shell a = Shell
   { -- | Optparse-applicative parser preferences.  If you don't have
     -- any specific needs you can use 'O.defaultPrefs' to get the
     -- default parser preferences.
-    shellPrefs :: O.ParserPrefs,
+    shellPrefs  :: O.ParserPrefs,
     -- | The shell parser wrapped in a 'O.ParserInfo'.  This is
     -- generally created with the 'O.info' function.
-    shellInfo :: O.ParserInfo a,
+    shellInfo   :: O.ParserInfo a,
     -- | The prompt to display.
     shellPrompt :: Stylized Text
   }
@@ -132,8 +132,8 @@ shellCompletion shell input@(left, _) = do
         optnames opt =
           case O.optMain opt of
             O.OptReader ns _ _ -> ns
-            O.FlagReader ns _ -> ns
-            _ -> mempty
+            O.FlagReader ns _  -> ns
+            _                  -> mempty
 
 -- | Internal function to split user input into words similar to what
 -- a POSIX shell does.

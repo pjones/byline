@@ -12,5 +12,5 @@
 --   terms contained in the LICENSE file.
 --
 -- License: BSD-2-Clause
-import Distribution.Simple
+import           Distribution.Simple
 main = defaultMain

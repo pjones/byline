@@ -17,9 +17,9 @@ module Main
   )
 where
 
-import Byline
+import           Byline
 import qualified Byline.Exit as Exit
-import qualified Data.Text as Text
+import qualified Data.Text   as Text
 
 main :: IO ()
 main = void $ runBylineT $ do

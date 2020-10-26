@@ -17,7 +17,7 @@ module Main
   )
 where
 
-import Byline
+import           Byline
 
 -- | Simple example.
 example :: MonadByline m => m Text

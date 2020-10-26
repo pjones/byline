@@ -30,11 +30,11 @@ module Byline.Completion
   )
 where
 
-import Byline.Internal.Completion
-import Byline.Internal.Eval (MonadByline (..))
-import qualified Byline.Internal.Prim as Prim
-import Data.Char (isSpace)
-import qualified Data.Text as Text
+import           Byline.Internal.Completion
+import           Byline.Internal.Eval       (MonadByline (..))
+import qualified Byline.Internal.Prim       as Prim
+import           Data.Char                  (isSpace)
+import qualified Data.Text                  as Text
 
 -- | Add a 'CompletionFunc' to the stack.
 --

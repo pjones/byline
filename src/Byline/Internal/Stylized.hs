@@ -29,11 +29,12 @@ module Byline.Internal.Stylized
   )
 where
 
-import Byline.Internal.Color (Color)
+import           Byline.Internal.Color (Color)
 import qualified Byline.Internal.Color as Color
-import Byline.Internal.Types (Modifier (..), OnlyOne (..), Status (..))
-import qualified Data.Text.IO as Text
-import qualified System.Console.ANSI as ANSI
+import           Byline.Internal.Types (Modifier (..), OnlyOne (..),
+                                        Status (..))
+import qualified Data.Text.IO          as Text
+import qualified System.Console.ANSI   as ANSI
 
 -- | A stylized value.  Construct text with modifiers using string
 -- literals and the @OverloadedStrings@ extension and/or the 'text'
@@ -52,15 +53,15 @@ data Stylized a
 -- | @since 1.0.0.0
 instance Semigroup (Stylized a) where
   -- StylizedText on LHS.
-  (<>) a@(Stylized _ _) b@(Stylized _ _) = StylizedList [a, b]
-  (<>) (Stylized m t) (StylizedMod m') = Stylized (m <> m') t
-  (<>) a@(Stylized _ _) (StylizedList b) = StylizedList (a : b)
+  (<>) a@(Stylized _ _) b@(Stylized _ _)  = StylizedList [a, b]
+  (<>) (Stylized m t) (StylizedMod m')    = Stylized (m <> m') t
+  (<>) a@(Stylized _ _) (StylizedList b)  = StylizedList (a : b)
   -- StylizedMod on LHS.
-  (<>) (StylizedMod m) (Stylized m' t) = Stylized (m <> m') t
-  (<>) (StylizedMod m) (StylizedMod m') = StylizedMod (m <> m')
+  (<>) (StylizedMod m) (Stylized m' t)    = Stylized (m <> m') t
+  (<>) (StylizedMod m) (StylizedMod m')   = StylizedMod (m <> m')
   (<>) m@(StylizedMod _) (StylizedList l) = StylizedList (map (m <>) l)
   -- StylizedList on LHS.
-  (<>) (StylizedList l) t@(Stylized _ _) = StylizedList (l <> [t])
+  (<>) (StylizedList l) t@(Stylized _ _)  = StylizedList (l <> [t])
   (<>) (StylizedList l) m@(StylizedMod _) = StylizedList (map (<> m) l)
   (<>) (StylizedList l) (StylizedList l') = StylizedList (l <> l')
 
@@ -154,7 +155,7 @@ render mode h stylized = mapM_ go (renderInstructions mode stylized)
   where
     go :: RenderInstruction -> IO ()
     go (RenderText t) = Text.hPutStr h t
-    go (RenderSGR s) = ANSI.hSetSGR h s
+    go (RenderSGR s)  = ANSI.hSetSGR h s
 
 -- | Render all modifiers as escape characters and return the
 -- resulting text.  The text produced from this function is formatted
@@ -199,7 +200,7 @@ renderInstructions mode = \case
         TermRGB ->
           -- Super terminal!
           let color l c = case Color.colorAsRGB c of
-                Left ac -> ANSI.SetColor l ANSI.Dull ac
+                Left ac   -> ANSI.SetColor l ANSI.Dull ac
                 Right rgb -> ANSI.SetRGBColor l rgb
            in renderToSGR t m color
     renderToSGR ::
@@ -237,12 +238,12 @@ modToSGR mod colorF =
     getIntensity :: Maybe ANSI.ConsoleIntensity
     getIntensity = case modBold mod of
       Off -> Nothing
-      On -> Just ANSI.BoldIntensity
+      On  -> Just ANSI.BoldIntensity
     getUnderlining :: Maybe ANSI.Underlining
     getUnderlining = case modUnderline mod of
       Off -> Nothing
-      On -> Just ANSI.SingleUnderline
+      On  -> Just ANSI.SingleUnderline
     getSwapForegroundBackground :: Maybe Bool
     getSwapForegroundBackground = case modSwapFgBg mod of
       Off -> Nothing
-      On -> Just True
+      On  -> Just True

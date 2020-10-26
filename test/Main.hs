@@ -17,9 +17,9 @@ module Main
   )
 where
 
-import Byline.Simulation
-import Test.Tasty
-import Test.Tasty.HUnit
+import           Byline.Simulation
+import           Test.Tasty
+import           Test.Tasty.HUnit
 
 example :: MonadByline m => m Text
 example = do

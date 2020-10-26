@@ -35,27 +35,27 @@ module Byline.Menu
   )
 where
 
-import Byline
-import Byline.Completion
-import Byline.Internal.Stylized (RenderMode (..), renderText)
-import qualified Data.Text as Text
-import Relude.Extra.Map
-import Text.Printf (printf)
+import           Byline
+import           Byline.Completion
+import           Byline.Internal.Stylized (RenderMode (..), renderText)
+import qualified Data.Text                as Text
+import           Relude.Extra.Map
+import           Text.Printf              (printf)
 
 -- | Opaque type representing a menu containing items of type @a@.
 --
 -- @since 1.0.0.0
 data Menu a = Menu
   { -- | Menu items.
-    _menuItems :: NonEmpty a,
+    _menuItems              :: NonEmpty a,
     -- | Banner printed before menu.
-    _menuBanner :: Maybe (Stylized Text),
+    _menuBanner             :: Maybe (Stylized Text),
     -- | Stylize an item's index.
-    _menuItemPrefix :: Int -> Stylized Text,
+    _menuItemPrefix         :: Int -> Stylized Text,
     -- | Printed after an item's index.
-    _menuItemSuffix :: Stylized Text,
+    _menuItemSuffix         :: Stylized Text,
     -- | Printed before the prompt.
-    _menuBeforePrompt :: Maybe (Stylized Text),
+    _menuBeforePrompt       :: Maybe (Stylized Text),
     -- | 'FromChoice' function.
     _menuItemFromChoiceFunc :: FromChoice a
   }
@@ -118,7 +118,7 @@ matchOnPrefix config input =
 defaultFromChoice :: forall a. ToStylizedText a => FromChoice a
 defaultFromChoice config prefixes input =
   case uniquePrefix <|> lookup cleanInput prefixes of
-    Nothing -> Other input
+    Nothing    -> Other input
     Just match -> Match match
   where
     cleanInput :: Text

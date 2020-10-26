@@ -24,13 +24,13 @@ module Byline.Exit
   )
 where
 
-import Byline
-import Byline.Internal.Eval (defaultRenderMode)
-import Byline.Internal.Stylized (render)
-import qualified System.Environment as Environment
-import qualified System.Exit as Exit
-import qualified System.IO as IO
-import Prelude hiding (die)
+import           Byline
+import           Byline.Internal.Eval     (defaultRenderMode)
+import           Byline.Internal.Stylized (render)
+import           Prelude                  hiding (die)
+import qualified System.Environment       as Environment
+import qualified System.Exit              as Exit
+import qualified System.IO                as IO
 
 -- | Exit the current process after printing a pretty error message.
 --
