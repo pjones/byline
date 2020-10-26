@@ -57,7 +57,6 @@ import Byline.Internal.Color
 import Byline.Internal.Eval (BylineT, MonadByline (..), runBylineT)
 import qualified Byline.Internal.Prim as Prim
 import Byline.Internal.Stylized
-import Prelude hiding (ask)
 
 -- | Output the given stylized text.
 --
