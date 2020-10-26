@@ -12,15 +12,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nix-hs": {
-        "branch": "master",
+        "branch": "release-20.09",
         "description": "Haskell + nixpkgs = nix-hs",
         "homepage": null,
         "owner": "pjones",
         "repo": "nix-hs",
-        "rev": "c6d3056d72c916758330b7e63442483b80f5b176",
-        "sha256": "0f82wpfvycak626p59cdnr7xliaz68ywyy43gjk97ff9kkaa67gs",
+        "rev": "67163bb02a8791d79136ba6914b6d6dad594533b",
+        "sha256": "0f7sjh45wxbf2m76l37f4l4v4dkq32dm599p85acx53324nr9y8z",
         "type": "tarball",
-        "url": "https://github.com/pjones/nix-hs/archive/c6d3056d72c916758330b7e63442483b80f5b176.tar.gz",
+        "url": "https://github.com/pjones/nix-hs/archive/67163bb02a8791d79136ba6914b6d6dad594533b.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
@@ -29,10 +29,10 @@
         "homepage": null,
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0cfe5377e8993052f9b0dd56d058f8008af45bd9",
-        "sha256": "0i3ybddi2mrlaz3di3svdpgy93zwmdglpywih4s9rd3wj865gzn1",
+        "rev": "95d26c9a9f2a102e25cf318a648de44537f42e09",
+        "sha256": "0ymhj252dq7z2ajdjsdz99h106ylm4vsmz5v3xiwsylcs4bz2nl8",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/0cfe5377e8993052f9b0dd56d058f8008af45bd9.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/95d26c9a9f2a102e25cf318a648de44537f42e09.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
