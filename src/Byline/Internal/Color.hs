@@ -158,8 +158,8 @@ term256Locations :: [(Word8, (Double, Double, Double))]
 term256Locations = zipWith (\c i -> (i, C.cieXYZView c)) colors [16 ..]
   where
     colors :: [C.Colour Double]
-    colors = do
-      r <- [0.0, 0.2 .. 1.0]
-      g <- [0.0, 0.2 .. 1.0]
-      b <- [0.0, 0.2 .. 1.0]
-      return (C.sRGB r g b)
+    colors =
+      C.sRGB
+        <$> [0.0, 0.2 .. 1.0]
+        <*> [0.0, 0.2 .. 1.0]
+        <*> [0.0, 0.2 .. 1.0]

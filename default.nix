@@ -6,7 +6,7 @@
 
 nix-hs {
   cabal = {
-    byline = ./mtl/byline.cabal;
+    byline = ./byline.cabal;
   };
 
   flags = [ "build-examples" ];
