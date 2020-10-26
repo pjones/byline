@@ -44,7 +44,9 @@ import qualified System.Terminfo.Caps as Terminfo
 --
 -- @since 1.0.0.0
 class Monad m => MonadByline (m :: * -> *) where
+
   liftByline :: Free.F PrimF a -> m a
+
   default liftByline :: (MonadTrans t, MonadByline m1, m ~ t m1) => Free.F PrimF a -> m a
   liftByline = lift . liftByline
 
@@ -63,8 +65,9 @@ instance MonadByline m => MonadByline (ContT r m)
 -- | A monad transformer that implements 'MonadByline'.
 --
 -- @since 1.0.0.0
-newtype BylineT m a = BylineT
-  {unBylineT :: Free.FT PrimF m a}
+newtype BylineT m a
+  = BylineT
+      {unBylineT :: Free.FT PrimF m a}
   deriving newtype
     ( Functor,
       Applicative,
@@ -106,23 +109,24 @@ runBylineT = runBylineT' defaultBylineSettings
 -- | Settings that control Byline at run time.
 --
 -- @since 1.0.0.0
-data Settings = Settings
-  { -- | The output handle to write to.  If 'Nothing' use standard
-    -- output.
-    --
-    -- NOTE: This only affects Byline (i.e. functions that use
-    -- @say@).  Functions like @ask@ that invoke Haskeline will always
-    -- use standard output since that's the hard-coded default.
-    bylineOutput :: Maybe Handle,
-    -- | The input handle to read from.  If 'Nothing' use standard
-    -- input.
-    bylineInput :: Maybe Handle,
-    -- | Override the detected render mode.
-    --
-    -- If 'Nothing' use the render mode that is calculated based on
-    -- the type of handle Byline writes to.
-    bylineMode :: Maybe RenderMode
-  }
+data Settings
+  = Settings
+      { -- | The output handle to write to.  If 'Nothing' use standard
+        -- output.
+        --
+        -- NOTE: This only affects Byline (i.e. functions that use
+        -- @say@).  Functions like @ask@ that invoke Haskeline will always
+        -- use standard output since that's the hard-coded default.
+        bylineOutput :: Maybe Handle,
+        -- | The input handle to read from.  If 'Nothing' use standard
+        -- input.
+        bylineInput :: Maybe Handle,
+        -- | Override the detected render mode.
+        --
+        -- If 'Nothing' use the render mode that is calculated based on
+        -- the type of handle Byline writes to.
+        bylineMode :: Maybe RenderMode
+      }
 
 -- | The default Byline settings.
 --
@@ -173,8 +177,9 @@ runBylineT' Settings {..} m = do
 -- 'Haskeline.InputT' transformer with EOF handling.
 --
 -- @since 1.0.0.0
-newtype EvalT m a = EvalT
-  {unEvalT :: MaybeT (Haskeline.InputT m) a}
+newtype EvalT m a
+  = EvalT
+      {unEvalT :: MaybeT (Haskeline.InputT m) a}
   deriving newtype (Functor, Applicative, Monad, MonadIO)
 
 instance MonadTrans EvalT where

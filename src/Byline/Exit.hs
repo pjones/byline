@@ -52,7 +52,6 @@ die a = do
 warn :: (MonadIO m, ToStylizedText a) => a -> m ()
 warn a = liftIO $ do
   name <- Environment.getProgName <&> toText
-
   let msg =
         mconcat
           [ text name,
@@ -60,6 +59,5 @@ warn a = liftIO $ do
             toStylizedText a,
             text "\n"
           ]
-
   mode <- defaultRenderMode stderr
   render mode stderr msg

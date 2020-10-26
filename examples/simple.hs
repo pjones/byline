@@ -25,18 +25,15 @@ main :: IO ()
 main = void $ runBylineT $ do
   -- Start with a simple message to standard output:
   sayLn ("I can use " <> ("color" <> fg blue) <> "!")
-
   -- Get user input with a stylized prompt:
   let question =
         "What's your favorite "
           <> ("language" <> bold <> fg green)
           <> "? "
   language <- askLn question Nothing
-
   if Text.null language
     then Exit.die ("Cat got your tongue?" <> fg magenta)
     else sayLn ("I see, you like " <> (text language <> fg red) <> ".")
-
   -- Keep prompting until a confirmation function indicates that the
   -- user's input is sufficient:
   let question =

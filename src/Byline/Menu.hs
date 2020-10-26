@@ -45,25 +45,30 @@ import Text.Printf (printf)
 -- | Opaque type representing a menu containing items of type @a@.
 --
 -- @since 1.0.0.0
-data Menu a = Menu
-  { -- | Menu items.
-    _menuItems :: NonEmpty a,
-    -- | Banner printed before menu.
-    _menuBanner :: Maybe (Stylized Text),
-    -- | Stylize an item's index.
-    _menuItemPrefix :: Int -> Stylized Text,
-    -- | Printed after an item's index.
-    _menuItemSuffix :: Stylized Text,
-    -- | Printed before the prompt.
-    _menuBeforePrompt :: Maybe (Stylized Text),
-    -- | 'FromChoice' function.
-    _menuItemFromChoiceFunc :: FromChoice a
-  }
+data Menu a
+  = Menu
+      { -- | Menu items.
+        _menuItems :: NonEmpty a,
+        -- | Banner printed before menu.
+        _menuBanner :: Maybe (Stylized Text),
+        -- | Stylize an item's index.
+        _menuItemPrefix :: Int -> Stylized Text,
+        -- | Printed after an item's index.
+        _menuItemSuffix :: Stylized Text,
+        -- | Printed before the prompt.
+        _menuBeforePrompt :: Maybe (Stylized Text),
+        -- | 'FromChoice' function.
+        _menuItemFromChoiceFunc :: FromChoice a
+      }
 
 instance Foldable Menu where
+
   foldMap f Menu {..} = foldMap f _menuItems
+
   toList Menu {..} = toList _menuItems
+
   null _ = False
+
   length Menu {..} = length _menuItems
 
 -- | A type representing the choice made by a user while working with

@@ -24,14 +24,12 @@ import Test.Tasty.HUnit
 example :: MonadByline m => m Text
 example = do
   sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
-
   let question =
         "What's "
           <> ("your" <> bold)
           <> " favorite "
           <> ("language" <> fg green <> underline)
           <> "? "
-
   askLn question (Just "Haskell")
 
 main :: IO ()
@@ -55,6 +53,5 @@ main = defaultMain $ do
     textThenDefault = do
       -- The next input request will come from this function:
       modify (\s -> s {simulationFunction = pure (SimulatedInput "Next")})
-
       -- But this time we'll return different text:
       pure (SimulatedInput "Current")

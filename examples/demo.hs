@@ -23,14 +23,12 @@ import Byline
 example :: MonadByline m => m Text
 example = do
   sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
-
   let question =
         "What's "
           <> ("your" <> bold)
           <> " favorite "
           <> ("language" <> fg green <> underline)
           <> "? "
-
   askLn question (Just "Haskell")
 
 -- | Main.

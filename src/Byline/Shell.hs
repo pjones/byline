@@ -39,17 +39,18 @@ import Relude.Extra.Map
 -- | A type that describes how to process user-entered shells.
 --
 -- @since 1.1.0.0
-data Shell a = Shell
-  { -- | Optparse-applicative parser preferences.  If you don't have
-    -- any specific needs you can use 'O.defaultPrefs' to get the
-    -- default parser preferences.
-    shellPrefs :: O.ParserPrefs,
-    -- | The shell parser wrapped in a 'O.ParserInfo'.  This is
-    -- generally created with the 'O.info' function.
-    shellInfo :: O.ParserInfo a,
-    -- | The prompt to display.
-    shellPrompt :: Stylized Text
-  }
+data Shell a
+  = Shell
+      { -- | Optparse-applicative parser preferences.  If you don't have
+        -- any specific needs you can use 'O.defaultPrefs' to get the
+        -- default parser preferences.
+        shellPrefs :: O.ParserPrefs,
+        -- | The shell parser wrapped in a 'O.ParserInfo'.  This is
+        -- generally created with the 'O.info' function.
+        shellInfo :: O.ParserInfo a,
+        -- | The prompt to display.
+        shellPrompt :: Stylized Text
+      }
 
 -- | Run a single iteration of the shell.
 --
@@ -102,19 +103,19 @@ shellCompletion shell input@(left, _) = do
     flags = fromMaybe [] $ do
       cmd <- Text.words left & viaNonEmpty head
       names <- lookup cmd commands
-      pure $
-        flip map names $ \case
+      pure
+        $ flip map names
+        $ \case
           O.OptShort c -> toText ['-', c]
           O.OptLong s -> "--" <> toText s
-
     -- A map of command names and their flags.
     commands :: HashMap Text [O.OptName]
     commands =
-      fromList $
-        concat $
-          O.mapParser
-            (const nameAndFlags)
-            (O.infoParser $ shellInfo shell)
+      fromList
+        $ concat
+        $ O.mapParser
+          (const nameAndFlags)
+          (O.infoParser $ shellInfo shell)
       where
         nameAndFlags opt =
           case O.optMain opt of
@@ -151,19 +152,16 @@ shellSplit t =
   where
     go :: Atto.Parser [Text]
     go = Atto.many1 (bare <|> quoted) <* expectEndOfInput
-
     expectEndOfInput :: Atto.Parser ()
     expectEndOfInput = (Atto.endOfInput <|>) $ do
       leftover <- Atto.many1 Atto.anyChar
       fail ("unexpected input: " <> leftover)
-
     -- A bare word (not wrapped in quotes).
     bare :: Atto.Parser Text
     bare = (Atto.<?> "unquoted word") $ do
       word <- Atto.many1 bareChar
       void (Atto.many1 Atto.space) <|> Atto.endOfInput
       pure (toText word)
-
     -- A run of characters that may have quoted characters.
     --
     -- Just like with the POSIX shell, the quotes don't have to be on
@@ -182,7 +180,6 @@ shellSplit t =
           <|> (Atto.endOfInput $> True)
           <|> pure False
       if end then pure str else (str <>) <$> quoted
-
     -- Parse a single character that might be escaped.
     bareChar :: Atto.Parser Char
     bareChar = do
@@ -199,10 +196,11 @@ shellSplit t =
         else pure char
 
 -- | State needed to scan input looking for a closing quote.
-data ScanState = ScanState
-  { scanResult :: [Char],
-    scanEscape :: Bool
-  }
+data ScanState
+  = ScanState
+      { scanResult :: [Char],
+        scanEscape :: Bool
+      }
 
 -- | A scanning function that looks for a terminating quote.
 quoteScanner ::

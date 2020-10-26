@@ -76,23 +76,25 @@ type SimulationFunction m = StateT (SimulationState m) m Simulated
 -- | Stateful information available to the simulation function.
 --
 -- @since 1.0.0.0
-data SimulationState m = SimulationState
-  { -- | The prompt associated with current request for input.  This
-    -- 'Text' value will /not/ contain any formatting escape codes such
-    -- as colors.
-    precedingPrompt :: Text,
-    -- | The function that will be called to simulate user input.
-    simulationFunction :: SimulationFunction m,
-    -- | The stack of completion functions.
-    completionFunctions :: [CompletionFunc IO]
-  }
+data SimulationState m
+  = SimulationState
+      { -- | The prompt associated with current request for input.  This
+        -- 'Text' value will /not/ contain any formatting escape codes such
+        -- as colors.
+        precedingPrompt :: Text,
+        -- | The function that will be called to simulate user input.
+        simulationFunction :: SimulationFunction m,
+        -- | The stack of completion functions.
+        completionFunctions :: [CompletionFunc IO]
+      }
 
 -- | A monad transformer that implements the 'MonadByline' class
 -- without actually doing anything.
 --
 -- @since 1.0.0.0
-newtype BylineT m a = BylineT
-  {unBylineT :: MaybeT (StateT (SimulationState m) m) a}
+newtype BylineT m a
+  = BylineT
+      {unBylineT :: MaybeT (StateT (SimulationState m) m) a}
   deriving newtype
     ( Functor,
       Applicative,

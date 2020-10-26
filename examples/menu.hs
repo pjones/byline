@@ -50,12 +50,10 @@ main = do
           menu items
       prompt = "Which snack? " <> bold <> fg yellow
       onError = "Please pick a valid item!" <> fg red
-
   -- Display the menu and get back the item the user selected.  The
   -- user will be able to select an item using it's index, name, or
   -- using tab completion.
   answer <-
     runBylineT $
       askWithMenuRepeatedly menuConfig prompt onError
-
   putStrLn ("You picked: " ++ show answer)

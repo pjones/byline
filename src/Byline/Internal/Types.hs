@@ -72,13 +72,14 @@ instance Monoid (OnlyOne a) where
 -- | Information about modifications made to stylized text.
 --
 -- @since 1.0.0.0
-data Modifier = Modifier
-  { modColorFG :: OnlyOne Color,
-    modColorBG :: OnlyOne Color,
-    modBold :: Status,
-    modUnderline :: Status,
-    modSwapFgBg :: Status
-  }
+data Modifier
+  = Modifier
+      { modColorFG :: OnlyOne Color,
+        modColorBG :: OnlyOne Color,
+        modBold :: Status,
+        modUnderline :: Status,
+        modSwapFgBg :: Status
+      }
   deriving (Show, Eq)
 
 -- | @since 1.0.0.0

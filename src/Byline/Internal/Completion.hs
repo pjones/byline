@@ -57,15 +57,16 @@ type CompletionFunc m = (Text, Text) -> m (Text, [Completion])
 -- | A type representing a completion match to the user's input.
 --
 -- @since 1.0.0.0
-data Completion = Completion
-  { -- | Text to insert to the right of the cursor.
-    replacement :: Text,
-    -- | Text to display when listing all completions.
-    display :: Text,
-    -- | Whether to follow the completed word with a
-    --  terminating space or close existing quotes.
-    isFinished :: Bool
-  }
+data Completion
+  = Completion
+      { -- | Text to insert to the right of the cursor.
+        replacement :: Text,
+        -- | Text to display when listing all completions.
+        display :: Text,
+        -- | Whether to follow the completed word with a
+        --  terminating space or close existing quotes.
+        isFinished :: Bool
+      }
   deriving (Eq, Ord, Show)
 
 -- | Convert a Byline completion result into a Haskeline completion result.
