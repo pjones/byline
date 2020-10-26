@@ -22,29 +22,34 @@ import qualified Byline.Exit as Exit
 import qualified Data.Text as Text
 
 main :: IO ()
-main = void $ runBylineT $ do
-  -- Start with a simple message to standard output:
-  sayLn ("I can use " <> ("color" <> fg blue) <> "!")
+main = void $
+  runBylineT $ do
+    -- Start with a simple message to standard output:
+    sayLn ("I can use " <> ("color" <> fg blue) <> "!")
 
-  -- Get user input with a stylized prompt:
-  let question =
-        "What's your favorite "
-          <> ("language" <> bold <> fg green)
-          <> "? "
-  language <- askLn question Nothing
+    -- When not using any stylized modifiers you can use the `text'
+    -- helper function to avoid "Ambiguous type variable":
+    sayLn (text "This is some plain text")
 
-  if Text.null language
-    then Exit.die ("Cat got your tongue?" <> fg magenta)
-    else sayLn ("I see, you like " <> (text language <> fg red) <> ".")
+    -- Get user input with a stylized prompt:
+    let question =
+          "What's your favorite "
+            <> ("language" <> bold <> fg green)
+            <> "? "
+    language <- askLn question Nothing
 
-  -- Keep prompting until a confirmation function indicates that the
-  -- user's input is sufficient:
-  let question =
-        "What's your "
-          <> ("name" <> fg green <> underline)
-          <> "? "
-  name <- askUntil question Nothing (pure . atLeastThreeChars)
-  sayLn $ "Hey there " <> text name <> fg (rgb 108 113 196)
+    if Text.null language
+      then Exit.die ("Cat got your tongue?" <> fg magenta)
+      else sayLn ("I see, you like " <> (text language <> fg red) <> ".")
+
+    -- Keep prompting until a confirmation function indicates that the
+    -- user's input is sufficient:
+    let question =
+          "What's your "
+            <> ("name" <> fg green <> underline)
+            <> "? "
+    name <- askUntil question Nothing (pure . atLeastThreeChars)
+    sayLn $ "Hey there " <> text name <> fg (rgb 108 113 196)
 
 -- | Example confirmation function that requires the input to be three
 -- or more characters long.

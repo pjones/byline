@@ -82,7 +82,9 @@ instance ToStylizedText (Stylized Text) where
 
 -- | Helper function to create stylized text.  If you enable the
 -- @OverloadedStrings@ extension then you can create stylized text
--- directly without using this function.
+-- directly without using this function.  However, if you are not
+-- using any of the other stylized modifiers then this function can be
+-- helpful for avoiding "Ambiguous type variable" compile errors.
 --
 -- This function is also helpful for producing stylized text from an
 -- existing @Text@ value.
