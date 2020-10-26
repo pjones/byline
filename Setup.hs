@@ -12,5 +12,9 @@
 --   terms contained in the LICENSE file.
 --
 -- License: BSD-2-Clause
+module Main where
+
 import Distribution.Simple
+
+main :: IO ()
 main = defaultMain
