@@ -82,7 +82,7 @@ shellHelp ::
   Shell a ->
   m ()
 shellHelp Shell {..} = do
-  let h = O.parserFailure shellPrefs shellInfo O.ShowHelpText mempty
+  let h = O.parserFailure shellPrefs shellInfo (O.ShowHelpText Nothing) mempty
       s = fst (O.renderFailure h "")
   sayLn (text $ toText s)
 
