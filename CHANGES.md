@@ -1,10 +1,12 @@
 # Version History
 
-## 1.1.0.0 (???)
+## 1.1.0.0 (October 27, 2020)
 
   * New `Shell` module for building shell-like interfaces.
 
   * New completion helper function `completionFromList`.
+
+  * Update dependencies to their latest versions
 
 ## 1.0.0.0 (July 27, 2020)
 
