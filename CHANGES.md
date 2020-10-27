@@ -1,14 +1,18 @@
 # Version History
 
-## 1.1.0.0 (October 27, 2020)
+## 1.1 (October 27, 2020)
 
-  * New `Shell` module for building shell-like interfaces.
+  - New `Shell` module for building shell-like interfaces.
 
-  * New completion helper function `completionFromList`.
+  - New completion helper function `completionFromList`.
 
-  * Update dependencies to their latest versions
+  - Update dependencies to their latest versions
 
-## 1.0.0.0 (July 27, 2020)
+  - Minor updates:
+
+    - 1.1.0.1 (October 27, 2020): Limit `optparse-applicative` to 0.16.x
+
+## 1.0 (July 27, 2020)
 
 This version is the result of a major refactoring of the code in order
 to produce an MTL-compatible library.
