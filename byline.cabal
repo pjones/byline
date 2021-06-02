@@ -1,17 +1,17 @@
 cabal-version:      2.2
 name:               byline
-version:            1.1.0.1
+version:            1.1.1
 homepage:           https://github.com/pjones/byline
 bug-reports:        https://github.com/pjones/byline/issues
 license:            BSD-2-Clause
 license-file:       LICENSE
 author:             Peter Jones <pjones@devalot.com>
 maintainer:         Peter Jones <pjones@devalot.com>
-copyright:          Copyright: (c) 2015-2020 Peter J. Jones
+copyright:          Copyright: (c) 2015-2021 Peter J. Jones
 category:           System, User Interfaces
 build-type:         Simple
 stability:          stable
-tested-with:        GHC ==8.6.5 || ==8.8.4 || ==8.10.2
+tested-with:        GHC ==8.8.4 || ==8.10.4 || ==9.0.1
 synopsis:
   Library for creating command-line interfaces (colors, menus, etc.)
 
@@ -47,8 +47,8 @@ description:
 --------------------------------------------------------------------------------
 extra-source-files:
   CHANGES.md
-  README.md
   examples/*.hs
+  README.md
 
 --------------------------------------------------------------------------------
 source-repository head
@@ -96,7 +96,7 @@ common options
 common dependencies
   build-depends:
     , ansi-terminal         >=0.6  && <0.12
-    , attoparsec            ^>=0.13
+    , attoparsec            >=0.13 && <0.15
     , base                  >=4.9  && <5.0
     , colour                ^>=2.3
     , exceptions            >=0.8  && <0.11
@@ -104,7 +104,7 @@ common dependencies
     , haskeline             >=0.8  && <0.8.2
     , mtl                   >=2.1  && <2.3
     , optparse-applicative  ^>=0.16
-    , relude                >=0.6  && <0.8
+    , relude                >=0.6  && <1.1
     , terminfo-hs           >=0.1  && <0.3
     , text                  >=0.11 && <1.3
 
