@@ -192,7 +192,9 @@ renderInstructions mode = \case
           [RenderText t]
         Simple ->
           -- Terminal supports basic 16 colors.
-          let color l = ANSI.SetColor l ANSI.Dull . Color.colorAsANSI
+          let color l c = case c of
+                Color.ColorCode ai ac -> ANSI.SetColor l ai ac
+                rgb -> ANSI.SetColor l ANSI.Dull (Color.colorAsANSI rgb)
            in renderToSGR t m color
         Term256 ->
           -- Terminal supports the 256-color palette.
@@ -201,7 +203,7 @@ renderInstructions mode = \case
         TermRGB ->
           -- Super terminal!
           let color l c = case Color.colorAsRGB c of
-                Left ac -> ANSI.SetColor l ANSI.Dull ac
+                Left (ai,ac) -> ANSI.SetColor l ai ac
                 Right rgb -> ANSI.SetRGBColor l rgb
            in renderToSGR t m color
     renderToSGR ::

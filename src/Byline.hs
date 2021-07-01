@@ -49,6 +49,8 @@ module Byline
     magenta,
     cyan,
     white,
+    vivid,
+    dull,
     rgb,
   )
 where

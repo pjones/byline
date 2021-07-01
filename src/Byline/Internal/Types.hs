@@ -33,7 +33,7 @@ import qualified System.Console.ANSI as ANSI
 --
 -- @since 1.0.0.0
 data Color
-  = ColorCode ANSI.Color
+  = ColorCode ANSI.ColorIntensity ANSI.Color
   | ColorRGB (Word8, Word8, Word8)
   deriving (Show, Eq)
 
