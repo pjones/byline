@@ -39,7 +39,7 @@ main = void $
     language <- askLn question Nothing
 
     if Text.null language
-      then Exit.die ("Cat got your tongue?" <> fg magenta)
+      then Exit.die ("Cat got your tongue?" <> fg (vivid magenta))
       else sayLn ("I see, you like " <> (text language <> fg red) <> ".")
 
     -- Keep prompting until a confirmation function indicates that the

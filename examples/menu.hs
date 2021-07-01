@@ -49,7 +49,7 @@ main = do
         menuBanner ("Pick a snack: " <> bold) $
           menu items
       prompt = "Which snack? " <> bold <> fg yellow
-      onError = "Please pick a valid item!" <> fg red
+      onError = "Please pick a valid item!" <> bg (vivid red)
 
   -- Display the menu and get back the item the user selected.  The
   -- user will be able to select an item using it's index, name, or
