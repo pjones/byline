@@ -29,7 +29,7 @@ example = do
         "What's "
           <> ("your" <> bold)
           <> " favorite "
-          <> ("language" <> fg green <> underline)
+          <> ("language" <> fg (vivid green) <> underline)
           <> "? "
 
   askLn question (Just "Haskell")

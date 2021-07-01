@@ -177,3 +177,12 @@ executable shell
 
   if !flag(build-examples)
     buildable: False
+
+--------------------------------------------------------------------------------
+executable colors
+  import:        options, dependencies
+  main-is:       examples/colors.hs
+  build-depends: byline
+
+  if !flag(build-examples)
+    buildable: False
