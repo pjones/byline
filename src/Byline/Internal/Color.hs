@@ -24,6 +24,8 @@ module Byline.Internal.Color
     magenta,
     cyan,
     white,
+    vivid,
+    dull,
     rgb,
     colorAsANSI,
     colorAsIndex256,
@@ -42,14 +44,24 @@ import qualified System.Console.ANSI as ANSI
 --
 -- @since 1.0.0.0
 black, red, green, yellow, blue, magenta, cyan, white :: Color
-black = ColorCode ANSI.Black
-red = ColorCode ANSI.Red
-green = ColorCode ANSI.Green
-yellow = ColorCode ANSI.Yellow
-blue = ColorCode ANSI.Blue
-magenta = ColorCode ANSI.Magenta
-cyan = ColorCode ANSI.Cyan
-white = ColorCode ANSI.White
+black = ColorCode ANSI.Dull ANSI.Black
+red = ColorCode ANSI.Dull ANSI.Red
+green = ColorCode ANSI.Dull ANSI.Green
+yellow = ColorCode ANSI.Dull ANSI.Yellow
+blue = ColorCode ANSI.Dull ANSI.Blue
+magenta = ColorCode ANSI.Dull ANSI.Magenta
+cyan = ColorCode ANSI.Dull ANSI.Cyan
+white = ColorCode ANSI.Dull ANSI.White
+
+-- | Intensify an ANSI color.
+vivid :: Color -> Color
+vivid (ColorCode _ c) = ColorCode ANSI.Vivid c
+vivid c = c
+
+-- | Dull an ANSI color.
+dull :: Color -> Color
+dull (ColorCode _ c) = ColorCode ANSI.Dull c
+dull c = c
 
 -- | Specify a color using a RGB triplet where each component is in
 -- the range @[0 .. 255]@.  The actual rendered color will depend on
@@ -81,7 +93,7 @@ rgb r g b = ColorRGB (r, g, b)
 --
 -- @since 1.0.0.0
 colorAsANSI :: Color -> ANSI.Color
-colorAsANSI (ColorCode c) = c
+colorAsANSI (ColorCode _ c) = c
 colorAsANSI (ColorRGB c) = nearestColor c ansiColorLocations
 
 -- | Convert a Byline color to an index into a terminal 256-color palette.
@@ -89,7 +101,7 @@ colorAsANSI (ColorRGB c) = nearestColor c ansiColorLocations
 -- @since 1.0.0.0
 colorAsIndex256 :: Color -> Word8
 colorAsIndex256 = \case
-  ColorCode c -> ANSI.xtermSystem ANSI.Dull c
+  ColorCode i c -> ANSI.xtermSystem i c
   ColorRGB c -> nearestColor c term256Locations
 
 -- | Convert a Byline color to a 'C.Colour'.  If the color is
@@ -97,9 +109,9 @@ colorAsIndex256 = \case
 -- instead.  This allows the terminal to pick the color on its own.
 --
 -- @since 1.0.0.0
-colorAsRGB :: Color -> Either ANSI.Color (C.Colour Float)
+colorAsRGB :: Color -> Either (ANSI.ColorIntensity, ANSI.Color) (C.Colour Float)
 colorAsRGB = \case
-  ColorCode c -> Left c
+  ColorCode i c -> Left (i,c)
   ColorRGB (r, g, b) -> Right (C.sRGB24 r g b)
 
 -- | Find the nearest color given a full RGB color.
