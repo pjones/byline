@@ -144,7 +144,7 @@ shellSplit t =
         then pure []
         else case Atto.parseOnly go input of
           Left e -> do
-            sayLn (("invalid input" <> fg red) <> ": " <> text (toText e))
+            sayLn (("invalid input" & fg red) <> ": " <> text (toText e))
             pure []
           Right ws ->
             pure ws

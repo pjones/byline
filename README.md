@@ -20,13 +20,13 @@ for input, and generating custom menus.  It was inspired by the
 ```haskell
 example :: MonadByline m => m Text
 example = do
-  sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
+  sayLn ("Hey, I like " <> ("Haskell" & fg magenta) <> "!")
 
   let question =
         "What's "
-          <> ("your" <> bold)
+          <> ("your" & bold)
           <> " favorite "
-          <> ("language" <> fg green <> underline)
+          <> ("language" & fg green & underline)
           <> "? "
 
   askLn question (Just "Haskell")
