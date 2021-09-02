@@ -23,26 +23,11 @@ import Byline
 example :: MonadByline m => m ()
 example = do
   let colors = [black, red, yellow, green, blue, cyan, magenta, white]
-
-  let w  = text "byline"
-  let fgd = mconcat $ (w &) . fg <$> colors
-  let fgv = mconcat $ (w &) . fg . vivid <$> colors
-  let bgd = swapFgBg fgd 
-  let bgv = swapFgBg fgv
-  
-  -- show foreground colors
-  sayLn fgd
-  sayLn fgv
-  sayLn $ fgv & underline
-  sayLn $ fgv & bold
-  sayLn $ fgv & underline & bold
-  
-  -- show background colors
-  sayLn bgd
-  sayLn bgv
-  sayLn $ bgv & underline
-  sayLn $ bgv & bold
-  sayLn $ bgv & underline & bold
+  let styles = [id, underline, bold, bold . underline]
+  let intensity = [id, vivid]
+  let fgbg = [id, swapFgBg]
+  let mods = [ (text "byline" &) <$> [fb . fg (i c) . s | c <- colors] | fb <- fgbg, i <- intensity, s <- styles]
+  mapM_ (sayLn . fold) mods
 
 -- | Main.
 main :: IO ()
