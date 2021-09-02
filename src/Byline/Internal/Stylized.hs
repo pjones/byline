@@ -43,8 +43,6 @@ import qualified System.Console.ANSI as ANSI
 data Stylized a
   = -- | Something to stylize.
     Stylized Modifier a
-  | -- | Modify the next stylized value.
-    StylizedMod Modifier
   | -- | Multiple stylized values.
     StylizedList [Stylized a]
   deriving (Show, Eq, Functor, Foldable, Traversable)
@@ -53,15 +51,9 @@ data Stylized a
 instance Semigroup (Stylized a) where
   -- StylizedText on LHS.
   (<>) a@(Stylized _ _) b@(Stylized _ _) = StylizedList [a, b]
-  (<>) (Stylized m t) (StylizedMod m') = Stylized (m <> m') t
   (<>) a@(Stylized _ _) (StylizedList b) = StylizedList (a : b)
-  -- StylizedMod on LHS.
-  (<>) (StylizedMod m) (Stylized m' t) = Stylized (m <> m') t
-  (<>) (StylizedMod m) (StylizedMod m') = StylizedMod (m <> m')
-  (<>) m@(StylizedMod _) (StylizedList l) = StylizedList (map (m <>) l)
   -- StylizedList on LHS.
   (<>) (StylizedList l) t@(Stylized _ _) = StylizedList (l <> [t])
-  (<>) (StylizedList l) m@(StylizedMod _) = StylizedList (map (<> m) l)
   (<>) (StylizedList l) (StylizedList l') = StylizedList (l <> l')
 
 -- | @since 1.0.0.0
@@ -100,32 +92,37 @@ text = Stylized mempty
 -- @
 --
 -- @since 1.0.0.0
-fg :: Color -> Stylized Text
-fg c = StylizedMod (mempty {modColorFG = OnlyOne (Just c)})
+fg :: Color -> Stylized Text -> Stylized Text
+fg c (Stylized m t) = Stylized (m {modColorFG = OnlyOne (Just c)}) t
+fg c (StylizedList l) = StylizedList (map (fg c) l)
 
 -- | Set the background color.
 --
 -- @since 1.0.0.0
-bg :: Color -> Stylized Text
-bg c = StylizedMod (mempty {modColorBG = OnlyOne (Just c)})
+bg :: Color -> Stylized Text -> Stylized Text
+bg c (Stylized m t) = Stylized (m {modColorBG = OnlyOne (Just c)}) t
+bg c (StylizedList l) = StylizedList (map (bg c) l)
 
 -- | Produce bold text.
 --
 -- @since 1.0.0.0
-bold :: Stylized Text
-bold = StylizedMod (mempty {modBold = On})
+bold :: Stylized Text -> Stylized Text
+bold (Stylized m t) = Stylized (m {modBold = On}) t
+bold (StylizedList l) = StylizedList (map bold l)
 
 -- | Produce underlined text.
 --
 -- @since 1.0.0.0
-underline :: Stylized Text
-underline = StylizedMod (mempty {modUnderline = On})
+underline :: Stylized Text -> Stylized Text
+underline (Stylized m t) = Stylized (m {modUnderline = On}) t
+underline (StylizedList l) = StylizedList (map underline l)
 
 -- | Produce swapped foreground/background text.
 --
 -- @since 1.0.0.0
-swapFgBg :: Stylized Text
-swapFgBg = StylizedMod (mempty {modSwapFgBg = On})
+swapFgBg :: Stylized Text -> Stylized Text
+swapFgBg (Stylized m t) = Stylized (m {modSwapFgBg = On}) t
+swapFgBg (StylizedList l) = StylizedList (map swapFgBg l)
 
 -- | How to render stylized text.
 --
@@ -181,7 +178,6 @@ renderText mode stylized = foldMap go (renderInstructions mode stylized)
 renderInstructions :: RenderMode -> Stylized Text -> [RenderInstruction]
 renderInstructions mode = \case
   Stylized m t -> renderMod mode (t, m)
-  StylizedMod _ -> []
   StylizedList xs -> concatMap (renderInstructions mode) xs
   where
     renderMod :: RenderMode -> (Text, Modifier) -> [RenderInstruction]

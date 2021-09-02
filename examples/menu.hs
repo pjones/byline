@@ -29,8 +29,8 @@ data Item
 -- | How to display a menu item.
 instance ToStylizedText Item where
   toStylizedText item = case item of
-    Fruit name -> text name <> (" (fruit)" <> fg red)
-    Vegetable name -> text name <> (" (vegetable)" <> fg green)
+    Fruit name -> text name <> (" (fruit)" & fg red)
+    Vegetable name -> text name <> (" (vegetable)" & fg green)
 
 -- | The list of menu items.
 items :: NonEmpty Item
@@ -46,10 +46,10 @@ items =
 main :: IO ()
 main = do
   let menuConfig =
-        menuBanner ("Pick a snack: " <> bold) $
+        menuBanner ("Pick a snack: " & bold) $
           menu items
-      prompt = "Which snack? " <> bold <> fg yellow
-      onError = "Please pick a valid item!" <> bg (vivid red)
+      prompt = "Which snack? " & bold & fg yellow
+      onError = "Please pick a valid item!" & bg (vivid red)
 
   -- Display the menu and get back the item the user selected.  The
   -- user will be able to select an item using it's index, name, or

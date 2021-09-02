@@ -23,13 +23,13 @@ import Test.Tasty.HUnit
 
 example :: MonadByline m => m Text
 example = do
-  sayLn ("Hey, I like " <> ("Haskell" <> fg magenta) <> "!")
+  sayLn ("Hey, I like " <> ("Haskell" & fg magenta) <> "!")
 
   let question =
         "What's "
-          <> ("your" <> bold)
+          <> ("your" & bold)
           <> " favorite "
-          <> ("language" <> fg (vivid green) <> underline)
+          <> ("language" & fg (vivid green) & underline)
           <> "? "
 
   askLn question (Just "Haskell")
