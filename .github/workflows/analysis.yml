@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Haskell
         id: setup-haskell-cabal
-        uses: haskell/actions/setup@v1
+        uses: haskell/actions/setup@v2
         with:
           ghc-version: 8.10
 
