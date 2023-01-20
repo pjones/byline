@@ -18,6 +18,7 @@ module Main
 where
 
 import Byline
+import Control.Monad
 
 -- | Simple example.
 example :: MonadByline m => m ()
@@ -31,4 +32,4 @@ example = do
 
 -- | Main.
 main :: IO ()
-main = runBylineT example >> pure ()
+main = Control.Monad.void (runBylineT example)
