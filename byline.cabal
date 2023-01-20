@@ -11,7 +11,7 @@ copyright:          Copyright: (c) 2015-2023 Peter J. Jones
 category:           System, User Interfaces
 build-type:         Simple
 stability:          stable
-tested-with:        GHC ==8.8.4 || ==8.10.4 || ==9.0.1 || ==9.2.5 || ==9.4.4
+tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.5
 synopsis:
   Library for creating command-line interfaces (colors, menus, etc.)
 
@@ -102,11 +102,11 @@ common dependencies
     , exceptions            >=0.8  && <0.11
     , free                  ^>=5.1
     , haskeline             >=0.8  && <0.8.3
-    , mtl                   >=2.1  && <2.3
+    , mtl                   >=2.1  && <2.4
     , optparse-applicative  ^>=0.17
     , relude                >=0.6  && <1.2
     , terminfo-hs           >=0.1  && <0.3
-    , text                  >=0.11 && <2.0
+    , text                  >=0.11 && <2.1
 
   mixins:
     base hiding (Prelude),
