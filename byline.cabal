@@ -1,6 +1,6 @@
 cabal-version:      2.2
 name:               byline
-version:            1.2.0
+version:            1.1.2
 homepage:           https://github.com/pjones/byline
 bug-reports:        https://github.com/pjones/byline/issues
 license:            BSD-2-Clause
