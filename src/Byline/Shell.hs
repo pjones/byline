@@ -118,16 +118,12 @@ shellCompletion shell input@(left, _) = do
       where
         nameAndFlags opt =
           case O.optMain opt of
-            O.CmdReader _ cmds p -> (`map` cmds) $ \cmd ->
-              ( toText cmd,
-                maybe
-                  []
+            O.CmdReader _ cmds -> (`map` cmds) $ bimap
+              toText
                   ( O.infoParser
                       >>> O.mapParser (const optnames)
                       >>> concat
                   )
-                  (p cmd)
-              )
             _ -> mempty
         optnames opt =
           case O.optMain opt of
