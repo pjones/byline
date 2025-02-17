@@ -10,9 +10,22 @@
 
   - Minor updates:
 
-    - 1.1.0.1 (October 27, 2020): Limit `optparse-applicative` to 0.16.x
-    - 1.1.1 (June 2, 2021): Build with GHC 9.0.1
-    - 1.1.2 (January 20, 2023): Build with GHC 9.2.4 (thanks @Arraying)
+    - 1.1.0.1 (October 27, 2020):
+
+      Limit `optparse-applicative` to 0.16.x
+
+    - 1.1.1 (June 2, 2021):
+
+      Build with GHC 9.0.1
+
+    - 1.1.2 (January 20, 2023):
+
+      Build with GHC 9.2.4 (thanks @Arraying)
+
+    - 1.1.3 (February 17, 2024):
+
+      Update dependencies, build with GHC 9.6, 9.8, and 9.10 (thanks
+      @GuillaumedeVolpiano).
 
 ## 1.0 (July 27, 2020)
 

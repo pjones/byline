@@ -16,10 +16,9 @@
 
       # List of supported compilers:
       supportedCompilers = [
-        "ghc8107"
-        "ghc902"
-        "ghc925"
-        "ghc944"
+        "ghc96"
+        "ghc98"
+        "ghc910"
       ];
 
       # List of supported systems:
@@ -67,6 +66,9 @@
             value = derivation pkgs.haskell.packages.${compiler};
           })
           supportedCompilers));
+
+      # Ensure all compiler variations build:
+      checks = forAllSystems (system: self.packages.${system});
 
       devShells = forAllSystems (system: {
         default = nixpkgsFor.${system}.haskellPackages.shellFor {
