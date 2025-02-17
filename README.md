@@ -13,7 +13,7 @@ POSIX-compatible systems and on Windows.
 
 The primary features of Byline include printing messages, prompting
 for input, and generating custom menus.  It was inspired by the
-[highline] Ruby library and the [terminal library][] by Craig Roche.
+[highline][] Ruby library and the [terminal library][] by Craig Roche.
 
 ## Example Using `MonadByline`
 
@@ -33,3 +33,8 @@ example = do
 ```
 
 ![Demo](doc/demo.png)
+
+[ansi-terminal]: http://hackage.haskell.org/package/ansi-terminal
+[haskeline]: https://hackage.haskell.org/package/haskeline
+[highline]: https://github.com/JEG2/highline
+[terminal library]: https://github.com/cdxr/terminal
